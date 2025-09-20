@@ -2,15 +2,17 @@ package com.MediTrack.persistance.entity;
 
 import jakarta.persistence.*;
 
+/**
+ * Entidad que representa a los usuarios del sistema
+ */
+
 @Entity
 @Table(name = "users")
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;       // ID interno
-
-    private String codigo; // ID visible
+    @Column(length = 10)
+    private String codigo; // ID
 
     private String nombre;
 
@@ -32,10 +34,6 @@ public class User {
 
 
     //Getters y Setters
-
-    public Long getId() {return id;}
-
-    public void setId(Long id) {this.id = id;}
 
     public String getCodigo() {return codigo;}
 
