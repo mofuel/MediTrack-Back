@@ -1,5 +1,10 @@
 package com.MediTrack.domain.dto;
 
+/**
+ * DTO que transporta la información de un usuario en las operaciones
+ * de registro y administración
+ */
+
 public class UserDTO {
     private String nombre;
     private String apellido;

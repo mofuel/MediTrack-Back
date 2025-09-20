@@ -8,9 +8,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface RegisterMapper {
 
-    @Mapping(target = "id", ignore = true)       // Se genera automáticamente en la DB
-    @Mapping(target = "codigo", ignore = true)   // Se genera luego del guardado
-    @Mapping(target = "rol", ignore = true)      // Se asigna en el servicio (ej. "estudiante")
+    @Mapping(target = "codigo", ignore = true)
+    @Mapping(target = "rol", ignore = true)      // Se asigna en el servicio
     @Mapping(target = "activo", ignore = true)   // Se activa por defecto
     User toUserFromRegisterDTO(RegisterDTO dto);
 }

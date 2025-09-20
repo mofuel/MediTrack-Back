@@ -21,26 +21,26 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        return Optional.empty();
+        return crud.findByEmail(email);
     }
 
     @Override
     public Optional<User> findByCodigo(String codigo) {
-        return Optional.empty();
+        return crud.findByCodigo(codigo);
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        return false;
+        return crud.existsByEmail(email);
     }
 
     @Override
     public boolean existsByDni(String dni) {
-        return false;
+        return crud.existsByDni(dni);
     }
 
     @Override
-    public long count() {
-        return 0;
-    }
+    public long count() { return crud.count(); }
+
+
 }
