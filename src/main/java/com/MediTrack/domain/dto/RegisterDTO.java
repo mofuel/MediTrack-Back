@@ -1,5 +1,10 @@
 package com.MediTrack.domain.dto;
 
+/**
+ * DTO que representa los datos necesarios para registrar a
+ * un nuevo usuario
+ */
+
 public class RegisterDTO {
 
     private String nombre;

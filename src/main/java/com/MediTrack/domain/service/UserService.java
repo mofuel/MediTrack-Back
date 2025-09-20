@@ -24,14 +24,17 @@ public class UserService {
 
 
     public User guardar(User user) {
+        // ✅ Si no viene código, lo generamos
         if (user.getCodigo() == null || user.getCodigo().isEmpty()) {
             user.setCodigo(generarCodigoPersonalizado());
         }
         User savedUser = userRepository.save(user);
+
+        // ❌ Ya NO existe savedUser.getId(), así que eliminamos esa parte
         if (savedUser == null) {
             System.err.println("❌ Falló el guardado!");
         } else {
-            System.out.println("✅ Usuario guardado con ID: " + savedUser.getId());
+            System.out.println("✅ Usuario guardado con código: " + savedUser.getCodigo());
         }
         return savedUser;
     }
@@ -45,6 +48,7 @@ public class UserService {
         user.setRol("ROLE_PACIENTE");
 
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        System.out.println("Nuevo usuario: " + user);
 
         // Guardar
         guardar(user);
@@ -58,7 +62,7 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    // ====== Lógica para generar código ======
+    // Generar código
     private String generarCodigoPersonalizado() {
         long count = userRepository.count() + 1;
         return String.format("U%05d", count); // ejemplo: U00001
