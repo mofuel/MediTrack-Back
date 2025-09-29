@@ -16,5 +16,7 @@ public interface UserRepository {
 
     boolean existsByDni(String dni);
 
+    void updatePassword(String codigo, String encodedPassword);
+
     long count();
 }

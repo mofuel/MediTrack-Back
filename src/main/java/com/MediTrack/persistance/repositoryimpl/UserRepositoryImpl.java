@@ -15,9 +15,7 @@ public class UserRepositoryImpl implements UserRepository {
     private UserCrudRepository crud;
 
     @Override
-    public User save(User user) {
-        return crud.save(user);
-    }
+    public User save(User user) {return crud.save(user);}
 
     @Override
     public Optional<User> findByEmail(String email) {
@@ -37,6 +35,14 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public boolean existsByDni(String dni) {
         return crud.existsByDni(dni);
+    }
+
+    @Override
+    public void updatePassword(String codigo, String encodedPassword) {
+        crud.findByCodigo(codigo).ifPresent(user -> {
+            user.setPassword(encodedPassword);
+            crud.save(user);
+        });
     }
 
     @Override
