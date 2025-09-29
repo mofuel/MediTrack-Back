@@ -23,6 +23,7 @@ public class UserService {
     private RegisterMapper registerMapper;
 
 
+
     public User guardar(User user) {
         // ✅ Si no viene código, lo generamos
         if (user.getCodigo() == null || user.getCodigo().isEmpty()) {
@@ -69,5 +70,9 @@ public class UserService {
     }
 
 
+    public void updatePassword(String codigo, String rawPassword) {
+        String encoded = passwordEncoder.encode(rawPassword);
+        userRepository.updatePassword(codigo, encoded);
+    }
 
 }
