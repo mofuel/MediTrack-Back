@@ -1,5 +1,8 @@
 package com.MediTrack.web.controller;
 
+import com.MediTrack.domain.repository.UserRepository;
+import com.MediTrack.domain.service.UserService;
+import com.MediTrack.persistance.entity.User;
 import com.MediTrack.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +19,13 @@ import java.util.Map;
 public class AuthController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;   // <-- inyecta aquí
+    private AuthenticationManager authenticationManager;
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> request) {
@@ -32,23 +38,34 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(email, password)
         );
 
-        // Obtén el primer rol (si solo manejas uno)
+        // Obtén el rol
         String rol = authentication.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse("ROLE_USER");
 
-        // Genera el token con email + rol
+        // Genera token
         String token = jwtUtil.generarToken(email, rol);
 
-        // Devuelve token + datos del usuario
-        return ResponseEntity.ok(
-                Map.of(
-                        "token", token,
-                        "user", email,
-                        "rol", rol
-                )
+        // Traer usuario completo desde DB
+        User usuario = userService.buscarPorEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Devuelve token + info completa del usuario
+        Map<String, Object> response = Map.of(
+                "token", token,
+                "rol", rol,
+                "codigo", usuario.getCodigo(),
+                "nombre", usuario.getNombre(),
+                "apellido", usuario.getApellido(),
+                "dni", usuario.getDni(),
+                "sexo", usuario.getSexo(),
+                "email", usuario.getEmail(),
+                "telefono", usuario.getTelefono(),
+                "activo", usuario.isActivo()
         );
+
+        return ResponseEntity.ok(response);
     }
 }

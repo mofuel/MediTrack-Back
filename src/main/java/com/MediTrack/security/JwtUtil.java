@@ -1,5 +1,6 @@
 package com.MediTrack.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -43,6 +44,18 @@ public class JwtUtil {
         } catch (JwtException e) {
             return false; // Token inválido o expirado
         }
+    }
+
+    public Claims getAllClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public String getRolFromToken(String token) {
+        return getAllClaimsFromToken(token).get("rol", String.class);
     }
 
 }
