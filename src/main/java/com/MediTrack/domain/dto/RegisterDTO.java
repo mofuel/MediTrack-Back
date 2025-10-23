@@ -8,23 +8,15 @@ package com.MediTrack.domain.dto;
 public class RegisterDTO {
 
     private String nombre;
-
     private String apellido;
-
     private String dni;
-
     private String telefono;
-
     private String email;
-
     private String sexo;
-
     private String password;
-
     private String confirmPassword;
 
     //Getters y Setters
-
 
     public String getNombre() {return nombre;}
 
