@@ -51,7 +51,7 @@ public class MedicProfileRepositoryImpl implements MedicProfileRepository {
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         crud.deleteById(id);
     }
 }

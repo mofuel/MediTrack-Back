@@ -45,7 +45,7 @@ public class ClinicalShiftsRepositoryImpl implements ClinicalShiftsRepository {
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         crud.deleteById(id);
     }
 }

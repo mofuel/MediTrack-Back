@@ -14,5 +14,5 @@ public interface ClinicalShiftsRepository {
 
     List<ClinicalShiftsDTO> findAll();
 
-    void delete(Long id);
+    void deleteById(Long id);
 }

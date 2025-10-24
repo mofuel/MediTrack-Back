@@ -52,7 +52,7 @@ public class SpecialtyRepositoryImpl implements SpecialtyRepository {
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         crud.deleteById(id);
     }
 }

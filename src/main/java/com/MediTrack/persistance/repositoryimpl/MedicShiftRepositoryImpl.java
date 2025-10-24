@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Repository
 public class MedicShiftRepositoryImpl implements MedicShiftRepository {
@@ -25,6 +25,18 @@ public class MedicShiftRepositoryImpl implements MedicShiftRepository {
         MedicShift entity = mapper.toMedicShift(dto);
         entity = crud.save(entity);
         return mapper.toMedicShiftDTO(entity);
+    }
+
+    @Override
+    public Optional<MedicShiftDTO> findById(Long id) {
+        return crud.findById(id).map(mapper::toMedicShiftDTO);
+    }
+
+    @Override
+    public List<MedicShiftDTO> findAll() {
+        return crud.findAll().stream()
+                .map(mapper::toMedicShiftDTO)
+                .toList();
     }
 
     @Override
@@ -53,5 +65,3 @@ public class MedicShiftRepositoryImpl implements MedicShiftRepository {
         crud.deleteById(id);
     }
 }
-
-

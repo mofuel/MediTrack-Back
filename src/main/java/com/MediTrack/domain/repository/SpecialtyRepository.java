@@ -16,5 +16,5 @@ public interface SpecialtyRepository {
 
     boolean existsByNombre(String nombre);
 
-    void delete(Long id);
+    void deleteById(Long id);
 }

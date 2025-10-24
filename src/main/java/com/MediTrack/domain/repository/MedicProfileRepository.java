@@ -17,5 +17,5 @@ public interface MedicProfileRepository {
 
     boolean existsByCodigoUsuario(String codigoUsuario);
 
-    void delete(Long id);
+    void deleteById(Long id);
 }
