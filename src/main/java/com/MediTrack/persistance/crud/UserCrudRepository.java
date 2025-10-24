@@ -7,6 +7,7 @@ import java.util.Optional;
 /**
  * Repositorio de acceso a datos para la entidad User
  */
+
 public interface UserCrudRepository extends JpaRepository<User, String> {
 
 

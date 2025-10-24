@@ -9,13 +9,13 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface MedicShiftMapper {
 
-    @Mapping(source = "perfilMedico.id", target = "perfilId")
-    @Mapping(source = "turno.id", target = "turnoId")
-    @Mapping(source = "turno.nombre", target = "nombreTurno")
-    @Mapping(source = "perfilMedico.user.nombre", target = "nombreMedico", ignore = true) // puedes habilitar si User tiene 'nombre'
+    @Mapping(source = "perfilMedico.id",               target = "perfilId")
+    @Mapping(source = "turno.id",                      target = "turnoId")
+    @Mapping(source = "turno.nombre",                  target = "nombreTurno")
+    @Mapping(source = "perfilMedico.user.nombre",      target = "nombreMedico")
     MedicShiftDTO toMedicShiftDTO(MedicShift entity);
 
     @Mapping(target = "perfilMedico.id", source = "perfilId")
-    @Mapping(target = "turno.id", source = "turnoId")
+    @Mapping(target = "turno.id",        source = "turnoId")
     MedicShift toMedicShift(MedicShiftDTO dto);
 }
