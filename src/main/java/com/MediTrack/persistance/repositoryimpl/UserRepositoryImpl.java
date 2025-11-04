@@ -6,6 +6,7 @@ import com.MediTrack.persistance.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -47,6 +48,16 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public long count() { return crud.count(); }
+
+    @Override
+    public void deleteByCodigo(String codigo) {
+        crud.deleteByCodigo(codigo);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return crud.findAll();
+    }
 
 
 }

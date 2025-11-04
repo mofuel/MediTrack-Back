@@ -27,7 +27,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
-                                    throws ServletException, IOException {
+            throws ServletException, IOException {
+
+        String path = request.getServletPath();
+
+
+        // 🔹 Ignorar rutas públicas (sin verificar token)
+        if (path.startsWith("/auth") || path.startsWith("/api/users") || path.startsWith("/password")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // Leer el header Authorization
         final String authHeader = request.getHeader("Authorization");
@@ -57,6 +66,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 
 }
 

@@ -34,4 +34,6 @@ public interface UserCrudRepository extends JpaRepository<User, String> {
      */
     boolean existsByEmail(String email);
 
+    void deleteByCodigo(String codigo);
+
 }

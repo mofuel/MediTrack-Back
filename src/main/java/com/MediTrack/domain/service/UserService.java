@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -74,5 +75,18 @@ public class UserService {
         String encoded = passwordEncoder.encode(rawPassword);
         userRepository.updatePassword(codigo, encoded);
     }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    public Optional<User> findByCodigo(String codigo) {
+        return userRepository.findByCodigo(codigo);
+    }
+
+    public void deleteByCodigo(String codigo) {
+        userRepository.deleteByCodigo(codigo);
+    }
+
 
 }

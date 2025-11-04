@@ -2,6 +2,7 @@ package com.MediTrack.domain.repository;
 
 import com.MediTrack.persistance.entity.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository {
@@ -19,4 +20,8 @@ public interface UserRepository {
     void updatePassword(String codigo, String encodedPassword);
 
     long count();
+
+    void deleteByCodigo(String codigo);
+
+    List<User> findAll();
 }
