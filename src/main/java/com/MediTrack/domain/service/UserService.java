@@ -43,18 +43,16 @@ public class UserService {
 
 
 
-    public void registrarUsuario(RegisterDTO dto) {
-
+    public User registrarUsuario(RegisterDTO dto) {
         User user = registerMapper.toUserFromRegisterDTO(dto);
-
         user.setRol("ROLE_PACIENTE");
-
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         System.out.println("Nuevo usuario: " + user);
 
-        // Guardar
-        guardar(user);
+        // Guardar y retornar el usuario persistido
+        return guardar(user);
     }
+
 
 
 

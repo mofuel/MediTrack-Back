@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -19,25 +20,43 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     /**
      * Registro de nuevos usuarios (pacientes por defecto)
      */
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterDTO registerDTO) {
+    public ResponseEntity<?> registerUser(@RequestBody RegisterDTO registerDTO) {
         if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
-            return ResponseEntity.badRequest().body("❌ Las contraseñas no coinciden");
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", "❌ Las contraseñas no coinciden")
+            );
         }
 
         Optional<User> existente = userService.buscarPorEmail(registerDTO.getEmail());
         if (existente.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("❌ El email ya está registrado");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                    Map.of("error", "❌ El email ya está registrado")
+            );
         }
 
-        userService.registrarUsuario(registerDTO);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("✅ Usuario registrado correctamente");
+        // 🔸 Registrar el usuario en BD
+        User nuevoUsuario = userService.registrarUsuario(registerDTO);
+
+        // 🔸 Crear respuesta JSON esperada por el frontend
+        Map<String, Object> response = Map.of(
+                "codigo", nuevoUsuario.getCodigo(),
+                "nombre", nuevoUsuario.getNombre(),
+                "apellido", nuevoUsuario.getApellido(),
+                "dni", nuevoUsuario.getDni(),
+                "sexo", nuevoUsuario.getSexo(),
+                "email", nuevoUsuario.getEmail(),
+                "telefono", nuevoUsuario.getTelefono(),
+                "rol", nuevoUsuario.getRol() != null ? nuevoUsuario.getRol() : "ROLE_PACIENTE",
+
+                "estado", "Activo",
+                "token", "" // 🔹 Opcional, si aún no generas JWT aquí
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 
@@ -51,7 +70,6 @@ public class UserController {
         return ResponseEntity.ok(usuarios);
     }
 
-
     /**
      * Buscar usuario por código
      */
@@ -63,41 +81,39 @@ public class UserController {
             return ResponseEntity.ok(usuario.get());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("❌ Usuario no encontrado");
+                    .body(Map.of("error", "❌ Usuario no encontrado"));
         }
     }
-
 
     /**
      * Eliminar usuario por código (solo ADMIN)
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{codigo}")
-    public ResponseEntity<String> eliminarUsuario(@PathVariable String codigo) {
+    public ResponseEntity<Map<String, String>> eliminarUsuario(@PathVariable String codigo) {
         Optional<User> usuario = userService.findByCodigo(codigo);
         if (usuario.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("❌ No se encontró el usuario con ese código");
+                    .body(Map.of("error", "❌ No se encontró el usuario con ese código"));
         }
         userService.deleteByCodigo(codigo);
-        return ResponseEntity.ok("✅ Usuario eliminado correctamente");
+        return ResponseEntity.ok(Map.of("message", "✅ Usuario eliminado correctamente"));
     }
-
 
     /**
      * Actualizar contraseña
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'PACIENTE', 'MEDICO')")
     @PutMapping("/{codigo}/password")
-    public ResponseEntity<String> actualizarPassword(@PathVariable String codigo,
-                                                     @RequestBody String nuevaPassword) {
+    public ResponseEntity<Map<String, String>> actualizarPassword(@PathVariable String codigo,
+                                                                  @RequestBody String nuevaPassword) {
         Optional<User> usuario = userService.findByCodigo(codigo);
         if (usuario.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("❌ Usuario no encontrado");
+                    .body(Map.of("error", "❌ Usuario no encontrado"));
         }
 
         userService.updatePassword(codigo, nuevaPassword);
-        return ResponseEntity.ok("🔑 Contraseña actualizada correctamente");
+        return ResponseEntity.ok(Map.of("message", "🔑 Contraseña actualizada correctamente"));
     }
 }
