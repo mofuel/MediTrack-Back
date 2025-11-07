@@ -87,5 +87,31 @@ public class UserService {
         userRepository.deleteByCodigo(codigo);
     }
 
+    public User actualizarUsuario(String codigo, User datosActualizados) {
+        Optional<User> existenteOpt = userRepository.findByCodigo(codigo);
+        if (existenteOpt.isEmpty()) {
+            throw new RuntimeException("Usuario no encontrado con código: " + codigo);
+        }
+
+        User existente = existenteOpt.get();
+
+        // ✅ Actualizamos solo los campos enviados
+        if (datosActualizados.getNombre() != null) existente.setNombre(datosActualizados.getNombre());
+        if (datosActualizados.getApellido() != null) existente.setApellido(datosActualizados.getApellido());
+        if (datosActualizados.getDni() != null) existente.setDni(datosActualizados.getDni());
+        if (datosActualizados.getSexo() != null) existente.setSexo(datosActualizados.getSexo());
+        if (datosActualizados.getEmail() != null) existente.setEmail(datosActualizados.getEmail());
+        if (datosActualizados.getTelefono() != null) existente.setTelefono(datosActualizados.getTelefono());
+        if (datosActualizados.getRol() != null) existente.setRol(datosActualizados.getRol());
+
+        // 🔄 Convertimos "estado" o booleano a activo/inactivo
+        if (datosActualizados.isActivo() != existente.isActivo()) {
+            existente.setActivo(datosActualizados.isActivo());
+        }
+
+        return userRepository.save(existente);
+    }
+
+
 
 }

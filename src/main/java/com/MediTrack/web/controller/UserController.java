@@ -116,4 +116,19 @@ public class UserController {
         userService.updatePassword(codigo, nuevaPassword);
         return ResponseEntity.ok(Map.of("message", "🔑 Contraseña actualizada correctamente"));
     }
+
+    /**
+     * Actualizar usuario
+     */
+    @PutMapping("/{codigo}")
+    public ResponseEntity<?> actualizarUsuario(
+            @PathVariable String codigo,
+            @RequestBody User datosActualizados) {
+        try {
+            User actualizado = userService.actualizarUsuario(codigo, datosActualizados);
+            return ResponseEntity.ok(actualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
