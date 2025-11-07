@@ -52,7 +52,7 @@ public class UserController {
                 "telefono", nuevoUsuario.getTelefono(),
                 "rol", nuevoUsuario.getRol() != null ? nuevoUsuario.getRol() : "ROLE_PACIENTE",
 
-                "estado", "Activo",
+                "estado", nuevoUsuario.isActivo() ? "Activo" : "Inactivo",
                 "token", "" // 🔹 Opcional, si aún no generas JWT aquí
         );
 

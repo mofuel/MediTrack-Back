@@ -47,6 +47,7 @@ public class UserService {
         User user = registerMapper.toUserFromRegisterDTO(dto);
         user.setRol("ROLE_PACIENTE");
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setActivo(true);
         System.out.println("Nuevo usuario: " + user);
 
         // Guardar y retornar el usuario persistido
