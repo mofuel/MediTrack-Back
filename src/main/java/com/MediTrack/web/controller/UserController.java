@@ -60,6 +60,40 @@ public class UserController {
     }
 
 
+    @PostMapping("/doctors")
+    public ResponseEntity<?> registrarDoctor(@RequestBody RegisterDTO dto) {
+        if (!dto.getPassword().equals(dto.getConfirmPassword())) {
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", "❌ Las contraseñas no coinciden")
+            );
+        }
+
+        Optional<User> existente = userService.buscarPorEmail(dto.getEmail());
+        if (existente.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                    Map.of("error", "❌ El email ya está registrado")
+            );
+        }
+
+        User nuevoDoctor = userService.registrarDoctor(dto);
+
+        Map<String, Object> response = Map.of(
+                "codigo", nuevoDoctor.getCodigo(),
+                "nombre", nuevoDoctor.getNombre(),
+                "apellido", nuevoDoctor.getApellido(),
+                "dni", nuevoDoctor.getDni(),
+                "sexo", nuevoDoctor.getSexo(),
+                "email", nuevoDoctor.getEmail(),
+                "telefono", nuevoDoctor.getTelefono(),
+                "rol", nuevoDoctor.getRol(),
+                "estado", nuevoDoctor.isActivo() ? "Activo" : "Inactivo"
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+
+
     /**
      * Listar todos los usuarios (solo ADMIN)
      */

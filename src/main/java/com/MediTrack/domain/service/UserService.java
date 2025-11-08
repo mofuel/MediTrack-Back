@@ -56,6 +56,24 @@ public class UserService {
     }
 
 
+    public User registrarDoctor(RegisterDTO dto) {
+        // Mapear DTO a entidad
+        User user = registerMapper.toUserFromRegisterDTO(dto);
+
+        // Forzar rol de doctor
+        user.setRol("ROLE_MEDICO");
+
+        // Codificar contraseña
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+        // Activar usuario
+        user.setActivo(true);
+
+        System.out.println("Nuevo doctor: " + user);
+
+        // Guardar y retornar
+        return guardar(user);
+    }
 
 
 
