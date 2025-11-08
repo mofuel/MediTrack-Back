@@ -2,6 +2,8 @@ package com.MediTrack.domain.service;
 
 import com.MediTrack.domain.dto.SpecialtyDTO;
 import com.MediTrack.domain.repository.SpecialtyRepository;
+import com.MediTrack.persistance.entity.Specialty;
+import com.MediTrack.persistance.mapper.SpecialtyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -12,6 +14,9 @@ public class SpecialtyService {
 
     @Autowired
     private SpecialtyRepository repository;
+
+    @Autowired
+    private SpecialtyMapper mapper;
 
     public SpecialtyDTO save(SpecialtyDTO dto) {
         if (repository.existsByNombre(dto.getNombre())) {
@@ -40,4 +45,17 @@ public class SpecialtyService {
         }
         return false;
     }
+
+    public SpecialtyDTO update(Long id, SpecialtyDTO dto) {
+        SpecialtyDTO existing = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Especialidad no encontrada"));
+
+        if (dto.getNombre() != null) {
+            existing.setNombre(dto.getNombre());
+        }
+
+        return repository.save(existing);
+    }
+
+
 }

@@ -16,7 +16,7 @@ public class SpecialtyController {
     @Autowired
     private SpecialtyService specialtyService;
 
-    // ✅ Crear nueva especialidad (solo ADMIN)
+    // Crear nueva especialidad (solo ADMIN)
     // @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<?> createSpecialty(@RequestBody SpecialtyDTO dto) {
@@ -28,13 +28,13 @@ public class SpecialtyController {
         }
     }
 
-    // ✅ Listar todas las especialidades
+    // Listar todas las especialidades
     @GetMapping
     public ResponseEntity<List<SpecialtyDTO>> getAll() {
         return ResponseEntity.ok(specialtyService.getAll());
     }
 
-    // ✅ Buscar especialidad por ID
+    // Buscar especialidad por ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
         return specialtyService.getById(id)
@@ -42,7 +42,7 @@ public class SpecialtyController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ✅ Buscar especialidad por nombre
+    // Buscar especialidad por nombre
     @GetMapping("/nombre/{nombre}")
     public ResponseEntity<?> getByNombre(@PathVariable String nombre) {
         return specialtyService.getByNombre(nombre)
@@ -50,7 +50,14 @@ public class SpecialtyController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ✅ Eliminar especialidad por ID (solo ADMIN)
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<SpecialtyDTO> update(@PathVariable Long id, @RequestBody SpecialtyDTO dto) {
+        SpecialtyDTO updated = specialtyService.update(id, dto);
+        return ResponseEntity.ok(updated);
+    }
+
+    // Eliminar especialidad por ID (solo ADMIN)
     // @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {
