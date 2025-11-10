@@ -57,6 +57,32 @@ public class ClinicalShiftsController {
                         .body("❌ Turno no encontrado"));
     }
 
+
+    /**
+     * Actualizar un turno existente (solo ADMIN)
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizarTurno(@PathVariable Long id, @RequestBody ClinicalShiftsDTO dto) {
+        Optional<ClinicalShiftsDTO> existente = service.findById(id);
+        if (existente.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("❌ No se encontró el turno con ese ID");
+        }
+
+        // Verificar si ya existe otro turno con el mismo nombre (evitar duplicados)
+        Optional<ClinicalShiftsDTO> duplicado = service.findByNombre(dto.getNombre());
+        if (duplicado.isPresent() && !duplicado.get().getId().equals(id)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("⚠️ Ya existe otro turno con ese nombre");
+        }
+
+        dto.setId(id);
+        ClinicalShiftsDTO actualizado = service.save(dto);
+        return ResponseEntity.ok(actualizado);
+    }
+
+
     /**
      * Eliminar un turno (solo ADMIN)
      */
