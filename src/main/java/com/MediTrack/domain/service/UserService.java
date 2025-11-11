@@ -2,6 +2,8 @@ package com.MediTrack.domain.service;
 
 import com.MediTrack.domain.dto.RegisterDTO;
 import com.MediTrack.domain.repository.UserRepository;
+import com.MediTrack.persistance.crud.MedicProfileCrudRepository;
+import com.MediTrack.persistance.entity.MedicProfile;
 import com.MediTrack.persistance.entity.User;
 import com.MediTrack.persistance.mapper.RegisterMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class UserService {
 
     @Autowired
     private RegisterMapper registerMapper;
+
+    @Autowired
+    private MedicProfileCrudRepository crud;
 
 
 
@@ -132,6 +137,23 @@ public class UserService {
         return userRepository.save(existente);
     }
 
+    public boolean tienePerfilMedico(String codigoUsuario) {
+        System.out.println("🧩 Verificando perfil médico para código: " + codigoUsuario);
+
+        return crud.findByCodigoUsuario(codigoUsuario)
+                .map(perfil -> {
+                    if (perfil.getEspecialidades() == null || perfil.getEspecialidades().isEmpty()) {
+                        System.out.println("⚠️ Perfil sin especialidades para: " + codigoUsuario);
+                        return false;
+                    }
+                    System.out.println("✅ Perfil con " + perfil.getEspecialidades().size() + " especialidades");
+                    return true;
+                })
+                .orElseGet(() -> {
+                    System.out.println("❌ No existe perfil médico para: " + codigoUsuario);
+                    return false;
+                });
+    }
 
 
 }
