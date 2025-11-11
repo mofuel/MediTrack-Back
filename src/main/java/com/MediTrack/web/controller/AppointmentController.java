@@ -32,7 +32,7 @@ public class AppointmentController {
 
     // Listar citas por paciente
     @GetMapping("/paciente/{pacienteId}")
-    public ResponseEntity<List<Appointment>> getByPaciente(@PathVariable Long pacienteId) {
+    public ResponseEntity<List<Appointment>> getByPaciente(@PathVariable String pacienteId) {
         return ResponseEntity.ok(appointmentService.getByPacienteId(pacienteId));
     }
 

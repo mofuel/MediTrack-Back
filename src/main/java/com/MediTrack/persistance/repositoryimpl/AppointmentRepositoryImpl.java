@@ -5,6 +5,7 @@ import com.MediTrack.persistance.crud.AppointmentCrudRepository;
 import com.MediTrack.persistance.entity.Appointment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -25,13 +26,13 @@ public class AppointmentRepositoryImpl implements AppointmentRepository {
     }
 
     @Override
-    public List<Appointment> findByPacienteId(Long pacienteId) {
-        return crud.findByPacienteId(pacienteId);
+    public List<Appointment> findByPacienteId(String codigoPaciente) {
+        return crud.findByPaciente_Codigo(codigoPaciente);
     }
 
     @Override
     public List<Appointment> findByMedicoId(Long medicoId) {
-        return crud.findByMedicoId(medicoId);
+        return crud.findByMedico_Id(medicoId);
     }
 
     @Override

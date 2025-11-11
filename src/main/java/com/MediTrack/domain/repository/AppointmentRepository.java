@@ -10,7 +10,7 @@ public interface AppointmentRepository {
 
     Optional<Appointment> findById(Long id);
 
-    List<Appointment> findByPacienteId(Long pacienteId);
+    List<Appointment> findByPacienteId(String pacienteId);
 
     List<Appointment> findByMedicoId(Long medicoId);
 

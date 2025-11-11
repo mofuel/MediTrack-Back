@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface AppointmentCrudRepository extends JpaRepository<Appointment, Long> {
 
-    // Buscar todas las citas de un paciente
-    List<Appointment> findByPacienteId(Long pacienteId);
+    // Buscar todas las citas de un paciente por su codigo
+    List<Appointment> findByPaciente_Codigo(String codigoPaciente);
 
-    // Buscar todas las citas de un médico
-    List<Appointment> findByMedicoId(Long medicoId);
+    // Buscar todas las citas de un médico por id
+    List<Appointment> findByMedico_Id(Long medicoId);
 
     // Buscar por estado (PENDIENTE, ACEPTADA, RECHAZADA)
     List<Appointment> findByEstado(String estado);

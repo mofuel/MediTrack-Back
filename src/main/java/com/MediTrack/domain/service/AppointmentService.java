@@ -24,7 +24,7 @@ public class AppointmentService {
     }
 
     // Buscar todas las citas de un paciente
-    public List<Appointment> getByPacienteId(Long pacienteId) {
+    public List<Appointment> getByPacienteId(String pacienteId) {
         return repository.findByPacienteId(pacienteId);
     }
 
