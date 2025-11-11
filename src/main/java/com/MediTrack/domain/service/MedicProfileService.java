@@ -29,6 +29,11 @@ public class MedicProfileService {
         return repository.findAll();
     }
 
+    public List<MedicProfileDTO> findByEspecialidadId(Long especialidadId) {
+        return repository.findByEspecialidadId(especialidadId);
+    }
+
+
     public void deleteById(Long id) {
         repository.deleteById(id);
     }

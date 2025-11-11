@@ -17,5 +17,8 @@ public interface MedicProfileRepository {
 
     boolean existsByCodigoUsuario(String codigoUsuario);
 
+    List<MedicProfileDTO> findByEspecialidadId(Long especialidadId);
+
+
     void deleteById(Long id);
 }

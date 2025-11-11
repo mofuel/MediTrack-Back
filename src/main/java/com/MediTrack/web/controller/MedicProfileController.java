@@ -51,4 +51,11 @@ public class MedicProfileController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/especialidad/{especialidadId}")
+    public ResponseEntity<List<MedicProfileDTO>> getByEspecialidad(@PathVariable Long especialidadId) {
+        List<MedicProfileDTO> medicos = medicProfileService.findByEspecialidadId(especialidadId);
+        return ResponseEntity.ok(medicos);
+    }
+
+
 }

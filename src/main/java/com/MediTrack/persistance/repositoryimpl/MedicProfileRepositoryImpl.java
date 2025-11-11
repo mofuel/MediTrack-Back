@@ -51,6 +51,15 @@ public class MedicProfileRepositoryImpl implements MedicProfileRepository {
     }
 
     @Override
+    public List<MedicProfileDTO> findByEspecialidadId(Long especialidadId) {
+        return crud.findByEspecialidadId(especialidadId)
+                .stream()
+                .map(mapper::toMedicProfileDTO)
+                .toList();
+    }
+
+
+    @Override
     public void deleteById(Long id) {
         crud.deleteById(id);
     }
