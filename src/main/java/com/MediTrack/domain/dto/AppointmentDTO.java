@@ -7,8 +7,8 @@ import java.time.LocalTime;
 public class AppointmentDTO {
 
     private Long id;
-    private Long pacienteId;
-    private Long medicoId;
+    private String pacienteId;
+    private String medicoId;
     private Long especialidadId;
     private LocalDate fechaCita;
     private LocalTime horaCita;
@@ -20,13 +20,13 @@ public class AppointmentDTO {
 
     public void setId(Long id) {this.id = id;}
 
-    public Long getPacienteId() {return pacienteId;}
+    public String getPacienteId() {return pacienteId;}
 
-    public void setPacienteId(Long pacienteId) {this.pacienteId = pacienteId;}
+    public void setPacienteId(String pacienteId) {this.pacienteId = pacienteId;}
 
-    public Long getMedicoId() {return medicoId;}
+    public String getMedicoId() {return medicoId;}
 
-    public void setMedicoId(Long medicoId) {this.medicoId = medicoId;}
+    public void setMedicoId(String medicoId) {this.medicoId = medicoId;}
 
     public Long getEspecialidadId() {return especialidadId;}
 
