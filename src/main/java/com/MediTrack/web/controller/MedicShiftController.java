@@ -37,7 +37,7 @@ public class MedicShiftController {
 
     /**
      * 🔍 Listar todos los turnos asignados
-     * ADMIN puede ver todo, MÉDICO solo los suyos
+     * ADMIN puede ver todo, MEDICO solo los suyos
      */
     // @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')")
     @GetMapping
