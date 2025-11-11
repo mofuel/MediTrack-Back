@@ -1,5 +1,6 @@
 package com.MediTrack.web.controller;
 
+import com.MediTrack.domain.dto.AppointmentDTO;
 import com.MediTrack.domain.service.AppointmentService;
 import com.MediTrack.persistance.entity.Appointment;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,48 +17,36 @@ public class AppointmentController {
     @Autowired
     private AppointmentService appointmentService;
 
-    // Crear una nueva cita
     @PostMapping
-    public ResponseEntity<Appointment> createAppointment(@RequestBody Appointment appointment) {
-        appointment.setEstado("PENDIENTE"); // siempre inicia como pendiente
-        Appointment saved = appointmentService.save(appointment);
+    public ResponseEntity<AppointmentDTO> createAppointment(@RequestBody AppointmentDTO dto) {
+        AppointmentDTO saved = appointmentService.saveDTO(dto);
         return ResponseEntity.ok(saved);
     }
 
-    // Listar todas las citas
-    @GetMapping
-    public ResponseEntity<List<Appointment>> getAll() {
-        return ResponseEntity.ok(appointmentService.getByEstado("PENDIENTE"));
-    }
-
-    // Listar citas por paciente
     @GetMapping("/paciente/{pacienteId}")
-    public ResponseEntity<List<Appointment>> getByPaciente(@PathVariable String pacienteId) {
-        return ResponseEntity.ok(appointmentService.getByPacienteId(pacienteId));
+    public ResponseEntity<List<AppointmentDTO>> getByPaciente(@PathVariable String pacienteId) {
+        List<AppointmentDTO> citas = appointmentService.getByPacienteIdDTO(pacienteId);
+        return ResponseEntity.ok(citas);
     }
 
-    // Listar citas por médico
     @GetMapping("/medico/{medicoId}")
-    public ResponseEntity<List<Appointment>> getByMedico(@PathVariable Long medicoId) {
-        return ResponseEntity.ok(appointmentService.getByMedicoId(medicoId));
+    public ResponseEntity<List<AppointmentDTO>> getByMedico(@PathVariable Long medicoId) {
+        List<AppointmentDTO> citas = appointmentService.getByMedicoIdDTO(medicoId);
+        return ResponseEntity.ok(citas);
     }
 
-    // Cambiar estado de la cita (aceptar/rechazar)
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<Appointment> updateEstado(
+    public ResponseEntity<AppointmentDTO> updateEstado(
             @PathVariable Long id,
             @RequestParam String estado
     ) {
-        Optional<Appointment> updated = appointmentService.updateEstado(id, estado.toUpperCase());
-        return updated
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Optional<AppointmentDTO> updated = appointmentService.updateEstadoDTO(id, estado.toUpperCase());
+        return updated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Obtener citas pendientes para notificaciones
     @GetMapping("/pendientes")
-    public ResponseEntity<List<Appointment>> getPendientes() {
-        List<Appointment> pendientes = appointmentService.getByEstado("PENDIENTE");
+    public ResponseEntity<List<AppointmentDTO>> getPendientes() {
+        List<AppointmentDTO> pendientes = appointmentService.getByEstadoDTO("PENDIENTE");
         return ResponseEntity.ok(pendientes);
     }
 }

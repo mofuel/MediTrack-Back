@@ -1,11 +1,14 @@
 package com.MediTrack.domain.service;
 
+import com.MediTrack.domain.dto.AppointmentDTO;
 import com.MediTrack.domain.repository.AppointmentRepository;
 import com.MediTrack.persistance.entity.Appointment;
+import com.MediTrack.persistance.mapper.AppointmentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AppointmentService {
@@ -13,48 +16,48 @@ public class AppointmentService {
     @Autowired
     private AppointmentRepository repository;
 
-    // Crear o actualizar una cita
-    public Appointment save(Appointment appointment) {
-        return repository.save(appointment);
+    @Autowired
+    private AppointmentMapper mapper;
+
+    // Guardar cita usando DTO
+    public AppointmentDTO saveDTO(AppointmentDTO dto) {
+        Appointment entity = mapper.toAppointment(dto);
+        entity.setEstado("PENDIENTE"); // siempre pendiente al crear
+        Appointment saved = repository.save(entity);
+        return mapper.toAppointmentDTO(saved);
     }
 
-    // Buscar cita por ID
-    public Optional<Appointment> getById(Long id) {
-        return repository.findById(id);
+    // Listar citas por paciente (DTO)
+    public List<AppointmentDTO> getByPacienteIdDTO(String pacienteId) {
+        return repository.findByPacienteId(pacienteId)
+                .stream()
+                .map(mapper::toAppointmentDTO)
+                .collect(Collectors.toList());
     }
 
-    // Buscar todas las citas de un paciente
-    public List<Appointment> getByPacienteId(String pacienteId) {
-        return repository.findByPacienteId(pacienteId);
+    // Listar citas por médico (DTO)
+    public List<AppointmentDTO> getByMedicoIdDTO(Long medicoId) {
+        return repository.findByMedicoId(medicoId)
+                .stream()
+                .map(mapper::toAppointmentDTO)
+                .collect(Collectors.toList());
     }
 
-    // Buscar todas las citas de un médico
-    public List<Appointment> getByMedicoId(Long medicoId) {
-        return repository.findByMedicoId(medicoId);
+    // Listar por estado (DTO)
+    public List<AppointmentDTO> getByEstadoDTO(String estado) {
+        return repository.findByEstado(estado)
+                .stream()
+                .map(mapper::toAppointmentDTO)
+                .collect(Collectors.toList());
     }
 
-    // Buscar citas por estado
-    public List<Appointment> getByEstado(String estado) {
-        return repository.findByEstado(estado);
-    }
-
-    // Eliminar cita por ID
-    public void deleteById(Long id) {
-        repository.deleteById(id);
-    }
-
-    // Contar todas las citas
-    public long count() {
-        return repository.count();
-    }
-
-    // Cambiar estado de la cita (pendiente, aceptada, rechazada)
-    public Optional<Appointment> updateEstado(Long id, String nuevoEstado) {
-        Optional<Appointment> optionalAppointment = repository.findById(id);
-        optionalAppointment.ifPresent(appointment -> {
-            appointment.setEstado(nuevoEstado);
-            repository.save(appointment);
+    // Cambiar estado de cita (DTO)
+    public Optional<AppointmentDTO> updateEstadoDTO(Long id, String nuevoEstado) {
+        Optional<Appointment> opt = repository.findById(id);
+        opt.ifPresent(a -> {
+            a.setEstado(nuevoEstado);
+            repository.save(a);
         });
-        return optionalAppointment;
+        return opt.map(mapper::toAppointmentDTO);
     }
 }
