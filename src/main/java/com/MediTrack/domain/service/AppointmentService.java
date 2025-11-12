@@ -35,14 +35,13 @@ public class AppointmentService {
     private UserRepository userRepository;
 
     @Autowired
-    private MedicProfileCrudRepository medicProfileCrud; // usar el CrudRepository directamente
+    private MedicProfileCrudRepository medicProfileCrud;
 
     @Autowired
     private SpecialtyRepository especialidadRepository;
 
     @Autowired
     private SpecialtyCrudRepository specialtyCrud;
-
 
     public AppointmentDTO saveDTO(AppointmentDTO dto, String pacienteEmail) {
         Appointment entity = mapper.toAppointment(dto);
@@ -51,12 +50,12 @@ public class AppointmentService {
         // traer medico
         MedicProfile medico = medicProfileCrud.findByCodigoUsuario(dto.getMedicoId())
                 .orElseThrow(() -> new RuntimeException("Médico no encontrado"));
-        entity.setMedico(medico);  // <--- setear
+        entity.setMedico(medico);
 
         // traer paciente
         User paciente = userRepository.findByCodigo(dto.getPacienteId())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
-        entity.setPaciente(paciente); // <--- setear
+        entity.setPaciente(paciente);
 
         // traer especialidad
         Specialty especialidad = specialtyCrud.findById(dto.getEspecialidadId())
@@ -67,11 +66,20 @@ public class AppointmentService {
         return mapper.toAppointmentDTO(saved);
     }
 
-
-
     public boolean validarPaciente(String emailPaciente, String codigoPaciente) {
         return userRepository.findByEmail(emailPaciente)
                 .map(user -> user.getCodigo().equals(codigoPaciente))
+                .orElse(false);
+    }
+
+    // ✅ NUEVO: Validar que el médico solo vea sus propias citas
+    public boolean validarMedico(String emailMedico, String codigoMedico) {
+        return medicProfileCrud.findByCodigoUsuario(codigoMedico)
+                .map(medico -> {
+                    // Verificar que el email del user asociado al medico coincida
+                    return medico.getUser() != null &&
+                            medico.getUser().getEmail().equals(emailMedico);
+                })
                 .orElse(false);
     }
 
@@ -83,8 +91,9 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
-    public List<AppointmentViewDTO> getByMedicoIdView(Long medicoId) {
-        return repository.findByMedicoId(medicoId)
+    // ✅ CAMBIADO: Ahora recibe String codigoMedico en lugar de Long medicoId
+    public List<AppointmentViewDTO> getByMedicoIdView(String codigoMedico) {
+        return repository.findByMedicoCodigoUsuario(codigoMedico)
                 .stream()
                 .map(viewMapper::toViewDTO)
                 .collect(Collectors.toList());
@@ -114,8 +123,9 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
-    public List<AppointmentDTO> getByMedicoIdDTO(Long medicoId) {
-        return repository.findByMedicoId(medicoId)
+    // ✅ CAMBIADO: Ahora recibe String codigoMedico
+    public List<AppointmentDTO> getByMedicoIdDTO(String codigoMedico) {
+        return repository.findByMedicoCodigoUsuario(codigoMedico)
                 .stream()
                 .map(mapper::toAppointmentDTO)
                 .collect(Collectors.toList());

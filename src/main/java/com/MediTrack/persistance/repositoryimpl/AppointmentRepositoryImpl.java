@@ -41,6 +41,11 @@ public class AppointmentRepositoryImpl implements AppointmentRepository {
     }
 
     @Override
+    public List<Appointment> findByMedicoCodigoUsuario(String codigoUsuario) {
+        return crud.findByMedico_CodigoUsuario(codigoUsuario);
+    }
+
+    @Override
     public void deleteById(Long id) {
         crud.deleteById(id);
     }

@@ -14,6 +14,8 @@ public interface AppointmentRepository {
 
     List<Appointment> findByMedicoId(Long medicoId);
 
+    List<Appointment> findByMedicoCodigoUsuario(String codigoUsuario);
+
     List<Appointment> findByEstado(String estado);
 
     void deleteById(Long id);

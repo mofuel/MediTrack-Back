@@ -13,6 +13,8 @@ public interface AppointmentCrudRepository extends JpaRepository<Appointment, Lo
     // Buscar todas las citas de un médico por id
     List<Appointment> findByMedico_Id(Long medicoId);
 
+    List<Appointment> findByMedico_CodigoUsuario(String codigoUsuario);
+
     // Buscar por estado (PENDIENTE, ACEPTADA, RECHAZADA)
     List<Appointment> findByEstado(String estado);
 }

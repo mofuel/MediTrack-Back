@@ -54,9 +54,21 @@ public class AppointmentController {
         return ResponseEntity.ok(citas);
     }
 
-    @GetMapping("/medico/{medicoId}")
-    public ResponseEntity<List<AppointmentViewDTO>> getByMedico(@PathVariable Long medicoId) {
-        List<AppointmentViewDTO> citas = appointmentService.getByMedicoIdView(medicoId);
+    @GetMapping("/medico/{codigoMedico}")
+    public ResponseEntity<List<AppointmentViewDTO>> getByMedico(
+            @PathVariable String codigoMedico,
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.substring(7);
+        String email = jwtUtil.getUsernameFromToken(token);
+
+        // Validar que el médico solo vea sus propias citas
+        boolean autorizado = appointmentService.validarMedico(email, codigoMedico);
+        if (!autorizado) {
+            return ResponseEntity.status(403).build();
+        }
+
+        List<AppointmentViewDTO> citas = appointmentService.getByMedicoIdView(codigoMedico);
         return ResponseEntity.ok(citas);
     }
 
