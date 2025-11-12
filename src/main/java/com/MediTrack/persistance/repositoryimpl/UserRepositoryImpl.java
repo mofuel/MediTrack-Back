@@ -59,5 +59,10 @@ public class UserRepositoryImpl implements UserRepository {
         return crud.findAll();
     }
 
+    @Override
+    public List<User> findByRol(String rol) {
+        return crud.findByRol(rol);
+    }
+
 
 }

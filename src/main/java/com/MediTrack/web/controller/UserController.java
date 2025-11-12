@@ -135,6 +135,16 @@ public class UserController {
     }
 
     /**
+     * Obtener solo pacientes (para el admin)
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/pacientes")
+    public ResponseEntity<List<User>> listarPacientes() {
+        List<User> pacientes = userService.findByRol("ROLE_PACIENTE");
+        return ResponseEntity.ok(pacientes);
+    }
+
+    /**
      * Actualizar contraseña
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'PACIENTE', 'MEDICO')")

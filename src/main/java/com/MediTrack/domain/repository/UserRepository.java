@@ -21,6 +21,8 @@ public interface UserRepository {
 
     List<User> findAll();
 
+    List<User> findByRol(String rol);
+
     void deleteByCodigo(String codigo);
 
     long count();

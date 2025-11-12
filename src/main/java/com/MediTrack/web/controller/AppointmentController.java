@@ -24,6 +24,7 @@ public class AppointmentController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    // Crear nueva cita
     @PostMapping
     public ResponseEntity<AppointmentDTO> createAppointment(@RequestBody AppointmentDTO dto,
                                                             @RequestHeader("Authorization") String authHeader) {
@@ -32,6 +33,25 @@ public class AppointmentController {
 
         // Ignorar dto.pacienteId enviado por frontend
         AppointmentDTO saved = appointmentService.saveDTO(dto, email);
+        return ResponseEntity.ok(saved);
+    }
+
+    // Crear cita como admin (sin validar email del paciente)
+    @PostMapping("/admin")
+    public ResponseEntity<AppointmentViewDTO> createAppointmentAsAdmin(
+            @RequestBody AppointmentDTO dto,
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.substring(7);
+        String email = jwtUtil.getUsernameFromToken(token);
+
+        // Validar que sea admin
+        boolean esAdmin = appointmentService.validarAdmin(email);
+        if (!esAdmin) {
+            return ResponseEntity.status(403).build();
+        }
+
+        AppointmentViewDTO saved = appointmentService.saveDTOAsAdmin(dto);
         return ResponseEntity.ok(saved);
     }
 
@@ -46,6 +66,13 @@ public class AppointmentController {
 
         List<AppointmentViewDTO> todasLasCitas = appointmentService.getAllAppointmentsView();
         return ResponseEntity.ok(todasLasCitas);
+    }
+
+    //  Obtener una cita por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<AppointmentViewDTO> getAppointmentById(@PathVariable Long id) {
+        Optional<AppointmentViewDTO> cita = appointmentService.getByIdView(id);
+        return cita.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 
@@ -85,6 +112,28 @@ public class AppointmentController {
         return ResponseEntity.ok(citas);
     }
 
+    //  Actualizar cita completa (admin)
+    @PutMapping("/{id}")
+    public ResponseEntity<AppointmentViewDTO> updateAppointment(
+            @PathVariable Long id,
+            @RequestBody AppointmentDTO dto,
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.substring(7);
+        String email = jwtUtil.getUsernameFromToken(token);
+
+        // Validar que sea admin
+        boolean esAdmin = appointmentService.validarAdmin(email);
+        if (!esAdmin) {
+            return ResponseEntity.status(403).build();
+        }
+
+        Optional<AppointmentViewDTO> updated = appointmentService.updateAppointmentView(id, dto);
+        return updated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
+    // Actualizar el estado
     @PatchMapping("/{id}/estado")
     public ResponseEntity<AppointmentViewDTO> updateEstado(
             @PathVariable Long id,
@@ -99,4 +148,28 @@ public class AppointmentController {
         List<AppointmentViewDTO> pendientes = appointmentService.getByEstadoView("PENDIENTE");
         return ResponseEntity.ok(pendientes);
     }
+
+
+    //  Eliminar cita (admin)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAppointment(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.substring(7);
+        String email = jwtUtil.getUsernameFromToken(token);
+
+        // Validar que sea admin
+        boolean esAdmin = appointmentService.validarAdmin(email);
+        if (!esAdmin) {
+            return ResponseEntity.status(403).build();
+        }
+
+        boolean deleted = appointmentService.deleteAppointment(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
 }

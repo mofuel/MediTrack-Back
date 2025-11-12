@@ -155,5 +155,9 @@ public class UserService {
                 });
     }
 
+    public List<User> findByRol(String rol) {
+        return userRepository.findByRol(rol);
+    }
+
 
 }

@@ -3,6 +3,7 @@ package com.MediTrack.persistance.crud;
 import com.MediTrack.persistance.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 /**
  * Repositorio de acceso a datos para la entidad User
@@ -35,5 +36,7 @@ public interface UserCrudRepository extends JpaRepository<User, String> {
     boolean existsByEmail(String email);
 
     void deleteByCodigo(String codigo);
+
+    List<User> findByRol(String rol);
 
 }
