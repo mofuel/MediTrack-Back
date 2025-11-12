@@ -23,7 +23,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/password/**", "/api/users/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/password/**", "/api/users/**").permitAll()
                         .requestMatchers("/api/specialties/**","/api/perfil-medico/**", "/api/appointments/**").authenticated()
                         .anyRequest().authenticated()
                 )
