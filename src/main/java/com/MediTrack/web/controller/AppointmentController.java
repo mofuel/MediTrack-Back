@@ -36,6 +36,19 @@ public class AppointmentController {
     }
 
 
+    // Devolver todas las citas
+    @GetMapping("/all")
+    public ResponseEntity<List<AppointmentViewDTO>> getAllAppointments(
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.substring(7);
+        String email = jwtUtil.getUsernameFromToken(token);
+
+        List<AppointmentViewDTO> todasLasCitas = appointmentService.getAllAppointmentsView();
+        return ResponseEntity.ok(todasLasCitas);
+    }
+
+
     // --- DEVOLVER nombres para la tabla del frontend ---
     @GetMapping("/paciente/{codigoPaciente}")
     public ResponseEntity<List<AppointmentViewDTO>> getByPaciente(

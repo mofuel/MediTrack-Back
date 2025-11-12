@@ -72,7 +72,7 @@ public class AppointmentService {
                 .orElse(false);
     }
 
-    // ✅ NUEVO: Validar que el médico solo vea sus propias citas
+    // Validar que el médico solo vea sus propias citas
     public boolean validarMedico(String emailMedico, String codigoMedico) {
         return medicProfileCrud.findByCodigoUsuario(codigoMedico)
                 .map(medico -> {
@@ -83,7 +83,7 @@ public class AppointmentService {
                 .orElse(false);
     }
 
-    // --- Nuevos métodos para enviar al frontend con nombres ---
+    // Obtener paciente a traves del id
     public List<AppointmentViewDTO> getByPacienteIdView(String pacienteId) {
         return repository.findByPacienteId(pacienteId)
                 .stream()
@@ -91,7 +91,7 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
-    // ✅ CAMBIADO: Ahora recibe String codigoMedico en lugar de Long medicoId
+    // Recibe String codigoMedico en lugar de Long medicoId
     public List<AppointmentViewDTO> getByMedicoIdView(String codigoMedico) {
         return repository.findByMedicoCodigoUsuario(codigoMedico)
                 .stream()
@@ -106,6 +106,13 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
+    public List<AppointmentViewDTO> getAllAppointmentsView() {
+        return repository.findAll()
+                .stream()
+                .map(viewMapper::toViewDTO)
+                .collect(Collectors.toList());
+    }
+
     public Optional<AppointmentViewDTO> updateEstadoView(Long id, String nuevoEstado) {
         Optional<Appointment> opt = repository.findById(id);
         opt.ifPresent(a -> {
@@ -115,35 +122,4 @@ public class AppointmentService {
         return opt.map(viewMapper::toViewDTO);
     }
 
-    // --- Métodos existentes para DTO normal ---
-    public List<AppointmentDTO> getByPacienteIdDTO(String pacienteId) {
-        return repository.findByPacienteId(pacienteId)
-                .stream()
-                .map(mapper::toAppointmentDTO)
-                .collect(Collectors.toList());
-    }
-
-    // ✅ CAMBIADO: Ahora recibe String codigoMedico
-    public List<AppointmentDTO> getByMedicoIdDTO(String codigoMedico) {
-        return repository.findByMedicoCodigoUsuario(codigoMedico)
-                .stream()
-                .map(mapper::toAppointmentDTO)
-                .collect(Collectors.toList());
-    }
-
-    public List<AppointmentDTO> getByEstadoDTO(String estado) {
-        return repository.findByEstado(estado)
-                .stream()
-                .map(mapper::toAppointmentDTO)
-                .collect(Collectors.toList());
-    }
-
-    public Optional<AppointmentDTO> updateEstadoDTO(Long id, String nuevoEstado) {
-        Optional<Appointment> opt = repository.findById(id);
-        opt.ifPresent(a -> {
-            a.setEstado(nuevoEstado);
-            repository.save(a);
-        });
-        return opt.map(mapper::toAppointmentDTO);
-    }
 }

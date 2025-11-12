@@ -6,6 +6,7 @@ import com.MediTrack.persistance.entity.Appointment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +44,13 @@ public class AppointmentRepositoryImpl implements AppointmentRepository {
     @Override
     public List<Appointment> findByMedicoCodigoUsuario(String codigoUsuario) {
         return crud.findByMedico_CodigoUsuario(codigoUsuario);
+    }
+
+    @Override
+    public List<Appointment> findAll() {
+        List<Appointment> appointments = new ArrayList<>();
+        crud.findAll().forEach(appointments::add);
+        return appointments;
     }
 
     @Override

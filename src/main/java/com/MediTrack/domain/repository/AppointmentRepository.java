@@ -18,6 +18,8 @@ public interface AppointmentRepository {
 
     List<Appointment> findByEstado(String estado);
 
+    List<Appointment> findAll();
+
     void deleteById(Long id);
 
     long count();
