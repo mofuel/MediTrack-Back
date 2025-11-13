@@ -9,5 +9,6 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
+COPY database ./database
 EXPOSE 8080
 CMD java -Dserver.port=${PORT:-8080} -jar app.jar
