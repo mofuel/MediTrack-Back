@@ -3,6 +3,7 @@ package com.MediTrack.web.controller;
 import com.MediTrack.domain.dto.RegisterDTO;
 import com.MediTrack.domain.service.UserService;
 import com.MediTrack.persistance.entity.User;
+import com.MediTrack.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,28 +21,29 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     /**
      * Registro de nuevos usuarios (pacientes por defecto)
      */
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterDTO registerDTO) {
         if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
-            return ResponseEntity.badRequest().body(
-                    Map.of("error", "❌ Las contraseñas no coinciden")
-            );
+            return ResponseEntity.badRequest().body(Map.of("error", "❌ Las contraseñas no coinciden"));
         }
 
         Optional<User> existente = userService.buscarPorEmail(registerDTO.getEmail());
         if (existente.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                    Map.of("error", "❌ El email ya está registrado")
-            );
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "❌ El email ya está registrado"));
         }
 
-        // 🔸 Registrar el usuario en BD
         User nuevoUsuario = userService.registrarUsuario(registerDTO);
 
-        // 🔸 Crear respuesta JSON esperada por el frontend
+        // 🔹 Generar token igual que en login
+        String rol = nuevoUsuario.getRol() != null ? nuevoUsuario.getRol() : "ROLE_PACIENTE";
+        String token = jwtUtil.generarToken(nuevoUsuario.getEmail(), rol);
+
         Map<String, Object> response = Map.of(
                 "codigo", nuevoUsuario.getCodigo(),
                 "nombre", nuevoUsuario.getNombre(),
@@ -50,14 +52,14 @@ public class UserController {
                 "sexo", nuevoUsuario.getSexo(),
                 "email", nuevoUsuario.getEmail(),
                 "telefono", nuevoUsuario.getTelefono(),
-                "rol", nuevoUsuario.getRol() != null ? nuevoUsuario.getRol() : "ROLE_PACIENTE",
-
+                "rol", rol,
                 "estado", nuevoUsuario.isActivo() ? "Activo" : "Inactivo",
-                "token", "" // 🔹 Opcional, si aún no generas JWT aquí
+                "token", token
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
 
 
     @PostMapping("/doctors")
