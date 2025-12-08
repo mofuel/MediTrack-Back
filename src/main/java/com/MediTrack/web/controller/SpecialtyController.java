@@ -63,7 +63,7 @@ public class SpecialtyController {
     public ResponseEntity<String> delete(@PathVariable Long id) {
         boolean deleted = specialtyService.delete(id);
         if (deleted) {
-            return ResponseEntity.ok("✅ Especialidad eliminada correctamente");
+            return ResponseEntity.ok("Especialidad eliminada correctamente");
         } else {
             return ResponseEntity.notFound().build();
         }

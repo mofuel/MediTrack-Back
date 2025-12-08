@@ -28,7 +28,7 @@ public class ClinicalShiftsController {
         Optional<ClinicalShiftsDTO> existente = service.findByNombre(dto.getNombre());
         if (existente.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("❌ Ya existe un turno con ese nombre");
+                    .body("Ya existe un turno con ese nombre");
         }
 
         ClinicalShiftsDTO nuevo = service.save(dto);
@@ -54,7 +54,7 @@ public class ClinicalShiftsController {
         Optional<ClinicalShiftsDTO> turno = service.findById(id);
         return turno.<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("❌ Turno no encontrado"));
+                        .body("Turno no encontrado"));
     }
 
 
@@ -67,14 +67,14 @@ public class ClinicalShiftsController {
         Optional<ClinicalShiftsDTO> existente = service.findById(id);
         if (existente.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("❌ No se encontró el turno con ese ID");
+                    .body("No se encontró el turno con ese ID");
         }
 
         // Verificar si ya existe otro turno con el mismo nombre (evitar duplicados)
         Optional<ClinicalShiftsDTO> duplicado = service.findByNombre(dto.getNombre());
         if (duplicado.isPresent() && !duplicado.get().getId().equals(id)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("⚠️ Ya existe otro turno con ese nombre");
+                    .body("Ya existe otro turno con ese nombre");
         }
 
         dto.setId(id);
@@ -92,10 +92,10 @@ public class ClinicalShiftsController {
         Optional<ClinicalShiftsDTO> turno = service.findById(id);
         if (turno.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("❌ No se encontró el turno con ese ID");
+                    .body("No se encontró el turno con ese ID");
         }
 
         service.deleteById(id);
-        return ResponseEntity.ok("✅ Turno eliminado correctamente");
+        return ResponseEntity.ok("Turno eliminado correctamente");
     }
 }

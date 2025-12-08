@@ -18,23 +18,35 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.findByEmail("admin@meditrack.com").isEmpty()) {
-            User admin = new User();
-            admin.setCodigo("U001");
+        String adminEmail = "admin@meditrack.com";
+        User admin = userRepository.findByEmail(adminEmail).orElse(null);
+
+        if (admin == null) {
+            // Si no existe, creamos el admin
+            User nuevoAdmin = new User();
+            nuevoAdmin.setCodigo("U001");
+            nuevoAdmin.setNombre("Administrador");
+            nuevoAdmin.setApellido("Del Sistema");
+            nuevoAdmin.setDni("11111111");
+            nuevoAdmin.setSexo("Masculino");
+            nuevoAdmin.setTelefono("111111111");
+            nuevoAdmin.setEmail(adminEmail);
+            nuevoAdmin.setPassword(passwordEncoder.encode("admin123"));
+            nuevoAdmin.setRol("ROLE_ADMIN");
+            nuevoAdmin.setActivo(true);
+
+            userRepository.save(nuevoAdmin);
+            System.out.println("Usuario admin creado correctamente: admin@meditrack.com / admin123");
+        } else {
             admin.setNombre("Administrador");
             admin.setApellido("Del Sistema");
             admin.setDni("11111111");
             admin.setSexo("Masculino");
             admin.setTelefono("111111111");
-            admin.setEmail("admin@meditrack.com");
-            admin.setPassword(passwordEncoder.encode("admin123"));
             admin.setRol("ROLE_ADMIN");
             admin.setActivo(true);
-
             userRepository.save(admin);
-            System.out.println("✅ Usuario admin creado correctamente: admin@meditrack.com / admin123");
-        } else {
-            System.out.println("ℹ️ El usuario administrador ya existe.");
+            System.out.println("Usuario administrador ya existía, datos actualizados si era necesario.");
         }
     }
 }

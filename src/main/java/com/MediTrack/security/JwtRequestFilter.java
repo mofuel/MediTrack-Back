@@ -32,13 +32,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
 
-        // 🔹 Ignorar rutas públicas (sin verificar token)
         if (path.startsWith("/auth") || path.startsWith("/api/users") || path.startsWith("/password")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Leer el header Authorization
         final String authHeader = request.getHeader("Authorization");
         String username = null;
         String token = null;
@@ -48,7 +46,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             username = jwtUtil.getUsernameFromToken(token);
         }
 
-        // Si hay usuario y aún no está autenticado
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = loginService.loadUserByUsername(username);
 

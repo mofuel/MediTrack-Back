@@ -32,7 +32,6 @@ public class UserService {
 
 
     public User guardar(User user) {
-        // ✅ Si no viene código, lo generamos
         if (user.getCodigo() == null || user.getCodigo().isEmpty()) {
             user.setCodigo(generarCodigoPersonalizado());
         }
@@ -40,9 +39,9 @@ public class UserService {
 
         // ❌ Ya NO existe savedUser.getId(), así que eliminamos esa parte
         if (savedUser == null) {
-            System.err.println("❌ Falló el guardado!");
+            System.err.println("Falló el guardado!");
         } else {
-            System.out.println("✅ Usuario guardado con código: " + savedUser.getCodigo());
+            System.out.println("Usuario guardado con código: " + savedUser.getCodigo());
         }
         return savedUser;
     }
@@ -120,7 +119,6 @@ public class UserService {
 
         User existente = existenteOpt.get();
 
-        // ✅ Actualizamos solo los campos enviados
         if (datosActualizados.getNombre() != null) existente.setNombre(datosActualizados.getNombre());
         if (datosActualizados.getApellido() != null) existente.setApellido(datosActualizados.getApellido());
         if (datosActualizados.getDni() != null) existente.setDni(datosActualizados.getDni());
@@ -129,7 +127,6 @@ public class UserService {
         if (datosActualizados.getTelefono() != null) existente.setTelefono(datosActualizados.getTelefono());
         if (datosActualizados.getRol() != null) existente.setRol(datosActualizados.getRol());
 
-        // 🔄 Convertimos "estado" o booleano a activo/inactivo
         if (datosActualizados.isActivo() != existente.isActivo()) {
             existente.setActivo(datosActualizados.isActivo());
         }
@@ -138,19 +135,15 @@ public class UserService {
     }
 
     public boolean tienePerfilMedico(String codigoUsuario) {
-        System.out.println("🧩 Verificando perfil médico para código: " + codigoUsuario);
 
         return crud.findByCodigoUsuario(codigoUsuario)
                 .map(perfil -> {
                     if (perfil.getEspecialidades() == null || perfil.getEspecialidades().isEmpty()) {
-                        System.out.println("⚠️ Perfil sin especialidades para: " + codigoUsuario);
                         return false;
                     }
-                    System.out.println("✅ Perfil con " + perfil.getEspecialidades().size() + " especialidades");
                     return true;
                 })
                 .orElseGet(() -> {
-                    System.out.println("❌ No existe perfil médico para: " + codigoUsuario);
                     return false;
                 });
     }

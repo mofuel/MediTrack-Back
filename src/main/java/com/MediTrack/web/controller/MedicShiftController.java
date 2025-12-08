@@ -19,7 +19,7 @@ public class MedicShiftController {
     private MedicShiftService service;
 
     /**
-     * ✅ Crear o asignar un turno a un médico
+     * Crear o asignar un turno a un médico
      * Solo ADMIN puede hacerlo
      */
     // @PreAuthorize("hasRole('ADMIN')")
@@ -28,7 +28,7 @@ public class MedicShiftController {
         // Evita duplicar turno por día
         if (service.existsByPerfilAndDia(dto.getPerfilId(), dto.getDiaSemana())) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("❌ El médico ya tiene asignado un turno para ese día");
+                    .body("El médico ya tiene asignado un turno para ese día");
         }
 
         MedicShiftDTO saved = service.save(dto);
@@ -36,8 +36,7 @@ public class MedicShiftController {
     }
 
     /**
-     * 🔍 Listar todos los turnos asignados
-     * ADMIN puede ver todo, MEDICO solo los suyos
+     * Listar todos los turnos asignados
      */
     // @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')")
     @GetMapping
@@ -46,7 +45,7 @@ public class MedicShiftController {
     }
 
     /**
-     * 🔍 Obtener turnos por ID de perfil médico
+     * Obtener turnos por ID de perfil médico
      */
     // @PreAuthorize("hasAnyRole('ADMIN', 'MEDICO')")
     @GetMapping("/perfil/{perfilId}")
@@ -55,7 +54,7 @@ public class MedicShiftController {
     }
 
     /**
-     * 🔍 Obtener turnos por ID de turno clínico (mañana/noche)
+     * Obtener turnos por ID de turno clínico (mañana/noche)
      */
     // @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/turno/{turnoId}")
@@ -64,7 +63,7 @@ public class MedicShiftController {
     }
 
     /**
-     * 🗑️ Eliminar turno asignado
+     * Eliminar turno asignado
      */
     // @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
@@ -72,10 +71,10 @@ public class MedicShiftController {
         Optional<MedicShiftDTO> existing = service.findById(id);
         if (existing.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("❌ Asignación de turno no encontrada");
+                    .body("Asignación de turno no encontrada");
         }
 
         service.delete(id);
-        return ResponseEntity.ok("✅ Turno eliminado correctamente");
+        return ResponseEntity.ok("Turno eliminado correctamente");
     }
 }

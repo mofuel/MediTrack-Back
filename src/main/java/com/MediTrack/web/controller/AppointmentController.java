@@ -76,7 +76,7 @@ public class AppointmentController {
     }
 
 
-    // --- DEVOLVER nombres para la tabla del frontend ---
+    // Devolver nombres para la tabla del frontend
     @GetMapping("/paciente/{codigoPaciente}")
     public ResponseEntity<List<AppointmentViewDTO>> getByPaciente(
             @PathVariable String codigoPaciente,

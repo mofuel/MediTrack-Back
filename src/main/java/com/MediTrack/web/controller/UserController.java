@@ -30,17 +30,16 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterDTO registerDTO) {
         if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
-            return ResponseEntity.badRequest().body(Map.of("error", "❌ Las contraseñas no coinciden"));
+            return ResponseEntity.badRequest().body(Map.of("error", "Las contraseñas no coinciden"));
         }
 
         Optional<User> existente = userService.buscarPorEmail(registerDTO.getEmail());
         if (existente.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "❌ El email ya está registrado"));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "El email ya está registrado"));
         }
 
         User nuevoUsuario = userService.registrarUsuario(registerDTO);
 
-        // 🔹 Generar token igual que en login
         String rol = nuevoUsuario.getRol() != null ? nuevoUsuario.getRol() : "ROLE_PACIENTE";
         String token = jwtUtil.generarToken(nuevoUsuario.getEmail(), rol);
 
@@ -66,14 +65,14 @@ public class UserController {
     public ResponseEntity<?> registrarDoctor(@RequestBody RegisterDTO dto) {
         if (!dto.getPassword().equals(dto.getConfirmPassword())) {
             return ResponseEntity.badRequest().body(
-                    Map.of("error", "❌ Las contraseñas no coinciden")
+                    Map.of("error", "Las contraseñas no coinciden")
             );
         }
 
         Optional<User> existente = userService.buscarPorEmail(dto.getEmail());
         if (existente.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                    Map.of("error", "❌ El email ya está registrado")
+                    Map.of("error", "El email ya está registrado")
             );
         }
 
@@ -117,7 +116,7 @@ public class UserController {
             return ResponseEntity.ok(usuario.get());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "❌ Usuario no encontrado"));
+                    .body(Map.of("error", "Usuario no encontrado"));
         }
     }
 
@@ -130,10 +129,10 @@ public class UserController {
         Optional<User> usuario = userService.findByCodigo(codigo);
         if (usuario.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "❌ No se encontró el usuario con ese código"));
+                    .body(Map.of("error", "No se encontró el usuario con ese código"));
         }
         userService.deleteByCodigo(codigo);
-        return ResponseEntity.ok(Map.of("message", "✅ Usuario eliminado correctamente"));
+        return ResponseEntity.ok(Map.of("message", "Usuario eliminado correctamente"));
     }
 
     /**
@@ -156,11 +155,11 @@ public class UserController {
         Optional<User> usuario = userService.findByCodigo(codigo);
         if (usuario.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "❌ Usuario no encontrado"));
+                    .body(Map.of("error", "Usuario no encontrado"));
         }
 
         userService.updatePassword(codigo, nuevaPassword);
-        return ResponseEntity.ok(Map.of("message", "🔑 Contraseña actualizada correctamente"));
+        return ResponseEntity.ok(Map.of("message", "Contraseña actualizada correctamente"));
     }
 
     /**

@@ -24,7 +24,7 @@ public class SQLiteDialect extends Dialect {
 
     @Override
     public void contributeTypes(TypeContributions typeContributions, ServiceRegistry serviceRegistry) {
-        // Mantén este método vacío: Hibernate 6 ya maneja la mayoría de los tipos automáticamente
+        // Mantén este metodo vacío: Hibernate 6 ya maneja la mayoría de los tipos automáticamente
     }
 
     @Override

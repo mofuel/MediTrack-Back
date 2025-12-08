@@ -33,7 +33,6 @@ public class AuthController {
         String email = request.get("email");
         String password = request.get("password");
 
-        System.out.println("🔹 Intentando login con email: " + email);
 
         // Autenticar usuario
         Authentication authentication = authenticationManager.authenticate(
