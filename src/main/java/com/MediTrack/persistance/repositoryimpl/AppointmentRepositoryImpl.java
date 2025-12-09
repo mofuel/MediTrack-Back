@@ -6,6 +6,8 @@ import com.MediTrack.persistance.entity.Appointment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -61,5 +63,23 @@ public class AppointmentRepositoryImpl implements AppointmentRepository {
     @Override
     public long count() {
         return crud.count();
+    }
+
+    @Override
+    public boolean existsByPacienteIdAndFechaCitaAndHoraCita(
+            String pacienteId,
+            LocalDate fecha,
+            LocalTime hora
+    ) {
+        return crud.existsByPaciente_CodigoAndFechaCitaAndHoraCita(pacienteId, fecha, hora);
+    }
+
+    @Override
+    public boolean existsByMedicoCodigoUsuarioAndFechaCitaAndHoraCita(
+            String codigoMedico,
+            LocalDate fecha,
+            LocalTime hora
+    ) {
+        return crud.existsByMedico_CodigoUsuarioAndFechaCitaAndHoraCita(codigoMedico, fecha, hora);
     }
 }

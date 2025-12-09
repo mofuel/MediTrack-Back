@@ -15,6 +15,11 @@ import com.MediTrack.persistance.mapper.AppointmentMapper;
 import com.MediTrack.persistance.mapper.AppointmentViewMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,29 +47,81 @@ public class AppointmentService {
 
     @Autowired
     private SpecialtyCrudRepository specialtyCrud;
+    
 
-    public AppointmentDTO saveDTO(AppointmentDTO dto, String pacienteEmail) {
-        Appointment entity = mapper.toAppointment(dto);
-        entity.setEstado("PENDIENTE");
+    public AppointmentViewDTO saveDTO(AppointmentDTO dto, String pacienteEmail) {
 
-        // traer medico
+        if (dto.getFechaCita() == null || dto.getHoraCita() == null) {
+            throw new IllegalArgumentException("Fecha y hora son obligatorias");
+        }
+
+        if (dto.getMedicoId() == null || dto.getMedicoId().isEmpty()) {
+            throw new IllegalArgumentException("Debe seleccionar un médico");
+        }
+
+        if (dto.getEspecialidadId() == null) {
+            throw new IllegalArgumentException("Debe seleccionar una especialidad");
+        }
+
+        LocalTime hora = dto.getHoraCita();
+        if (hora.isBefore(LocalTime.of(7, 0)) || hora.isAfter(LocalTime.of(22, 0))) {
+            throw new IllegalArgumentException("La hora de la cita debe estar entre 07:00 y 22:00");
+        }
+
+        ZoneId zonaLima = ZoneId.of("America/Lima");
+        LocalDateTime citaDateTime = LocalDateTime.of(dto.getFechaCita(), dto.getHoraCita());
+        LocalDateTime ahora = LocalDateTime.now(zonaLima);
+
+        if (citaDateTime.isBefore(ahora)) {
+            throw new IllegalArgumentException("No puede agendar citas en el pasado");
+        }
+
+        if (citaDateTime.isBefore(ahora.plusMinutes(30))) {
+            throw new IllegalArgumentException("Debe agendar la cita con al menos 30 minutos de anticipación");
+        }
+
+        User paciente = userRepository.findByEmail(pacienteEmail)
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+
+        dto.setPacienteId(paciente.getCodigo());
+
+        if (repository.existsByPacienteIdAndFechaCitaAndHoraCita(
+                paciente.getCodigo(), dto.getFechaCita(), dto.getHoraCita())) {
+            throw new IllegalArgumentException("Ya tienes una cita agendada a esta hora");
+        }
+
+        if (repository.existsByMedicoCodigoUsuarioAndFechaCitaAndHoraCita(
+                dto.getMedicoId(), dto.getFechaCita(), dto.getHoraCita())) {
+            throw new IllegalArgumentException("El médico no está disponible a esta hora");
+        }
+
         MedicProfile medico = medicProfileCrud.findByCodigoUsuario(dto.getMedicoId())
                 .orElseThrow(() -> new RuntimeException("Médico no encontrado"));
-        entity.setMedico(medico);
 
-        // traer paciente
-        User paciente = userRepository.findByCodigo(dto.getPacienteId())
-                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
-        entity.setPaciente(paciente);
-
-        // traer especialidad
         Specialty especialidad = specialtyCrud.findById(dto.getEspecialidadId())
                 .orElseThrow(() -> new RuntimeException("Especialidad no encontrada"));
+
+        boolean tieneEspecialidad = medico.getEspecialidades().stream()
+                .anyMatch(esp -> esp.getId().equals(dto.getEspecialidadId()));
+
+        if (!tieneEspecialidad) {
+            throw new IllegalArgumentException("El médico no pertenece a la especialidad seleccionada");
+        }
+
+        Appointment entity = mapper.toAppointment(dto);
+        entity.setEstado("PENDIENTE");
+        entity.setPaciente(paciente);
+        entity.setMedico(medico);
         entity.setEspecialidad(especialidad);
 
         Appointment saved = repository.save(entity);
-        return mapper.toAppointmentDTO(saved);
+
+        return viewMapper.toViewDTO(saved);
     }
+
+
+
+
 
     public boolean validarPaciente(String emailPaciente, String codigoPaciente) {
         return userRepository.findByEmail(emailPaciente)
@@ -92,7 +149,7 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
-    // --- Nuevos métodos para enviar al frontend con nombres ---
+    // Nuevos métodos para enviar al frontend con nombres
     public List<AppointmentViewDTO> getByPacienteIdView(String pacienteId) {
         return repository.findByPacienteId(pacienteId)
                 .stream()
@@ -133,71 +190,120 @@ public class AppointmentService {
 
     // Guardar cita como administrador (sin validar email)
     public AppointmentViewDTO saveDTOAsAdmin(AppointmentDTO dto) {
+        if (dto.getPacienteId() == null || dto.getPacienteId().trim().isEmpty()) {
+            throw new RuntimeException("El código del paciente es obligatorio");
+        }
+
+        if (dto.getMedicoId() == null || dto.getMedicoId().trim().isEmpty()) {
+            throw new RuntimeException("El código del médico es obligatorio");
+        }
+
+        if (dto.getEspecialidadId() == null || dto.getEspecialidadId() <= 0) {
+            throw new RuntimeException("Debe seleccionar una especialidad");
+        }
+
         Appointment entity = mapper.toAppointment(dto);
         entity.setEstado("PENDIENTE");
 
-        // traer medico
         MedicProfile medico = medicProfileCrud.findByCodigoUsuario(dto.getMedicoId())
                 .orElseThrow(() -> new RuntimeException("Médico no encontrado"));
+
+        if (medico.getUser().getNombre().matches("\\d+")) {
+            throw new RuntimeException("El nombre del médico no puede contener solo números");
+        }
+
         entity.setMedico(medico);
 
-        // traer paciente
+        // Buscar paciente
         User paciente = userRepository.findByCodigo(dto.getPacienteId())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+
+        // Validar que el nombre del paciente no sea solo números
+        if (paciente.getNombre().matches("\\d+")) {
+            throw new RuntimeException("El nombre del paciente no puede contener solo números");
+        }
+
         entity.setPaciente(paciente);
 
-        // traer especialidad
+        // Buscar especialidad
         Specialty especialidad = specialtyCrud.findById(dto.getEspecialidadId())
                 .orElseThrow(() -> new RuntimeException("Especialidad no encontrada"));
+
         entity.setEspecialidad(especialidad);
 
+        // Guardar en BD
         Appointment saved = repository.save(entity);
+
         return viewMapper.toViewDTO(saved);
     }
 
-    // Obtener cita por ID
+
+
     public Optional<AppointmentViewDTO> getByIdView(Long id) {
         return repository.findById(id).map(viewMapper::toViewDTO);
     }
 
-    // Actualizar cita completa
+
     public Optional<AppointmentViewDTO> updateAppointmentView(Long id, AppointmentDTO dto) {
         Optional<Appointment> opt = repository.findById(id);
-        if (opt.isEmpty()) {
-            return Optional.empty();
-        }
+        if (opt.isEmpty()) return Optional.empty();
 
         Appointment entity = opt.get();
 
-        // Actualizar médico si cambió
         if (dto.getMedicoId() != null && !dto.getMedicoId().equals(entity.getMedico().getCodigoUsuario())) {
             MedicProfile medico = medicProfileCrud.findByCodigoUsuario(dto.getMedicoId())
                     .orElseThrow(() -> new RuntimeException("Médico no encontrado"));
             entity.setMedico(medico);
         }
 
-        // Actualizar paciente si cambió
         if (dto.getPacienteId() != null && !dto.getPacienteId().equals(entity.getPaciente().getCodigo())) {
             User paciente = userRepository.findByCodigo(dto.getPacienteId())
                     .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
             entity.setPaciente(paciente);
         }
 
-        // Actualizar especialidad si cambió
         if (dto.getEspecialidadId() != null) {
             Specialty especialidad = specialtyCrud.findById(dto.getEspecialidadId())
                     .orElseThrow(() -> new RuntimeException("Especialidad no encontrada"));
             entity.setEspecialidad(especialidad);
         }
 
-        // Actualizar fecha, hora y estado
-        if (dto.getFechaCita() != null) entity.setFechaCita(dto.getFechaCita());
-        if (dto.getHoraCita() != null) entity.setHoraCita(dto.getHoraCita());
-        if (dto.getEstado() != null) entity.setEstado(dto.getEstado().toUpperCase());
+        if (dto.getFechaCita() != null) {
+            if (dto.getFechaCita().isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("La fecha de la cita no puede ser en el pasado");
+            }
+            entity.setFechaCita(dto.getFechaCita());
+        }
+
+        if (dto.getHoraCita() != null) {
+            LocalTime hora = dto.getHoraCita();
+            if (hora.isBefore(LocalTime.of(7,0)) || hora.isAfter(LocalTime.of(19,0))) {
+                throw new IllegalArgumentException("La hora de la cita debe estar entre 07:00 y 19:00");
+            }
+            entity.setHoraCita(hora);
+        }
+
+        if (repository.existsByPacienteIdAndFechaCitaAndHoraCita(entity.getPaciente().getCodigo(), entity.getFechaCita(), entity.getHoraCita())) {
+            throw new IllegalArgumentException("El paciente ya tiene otra cita a esta hora");
+        }
+
+        if (repository.existsByMedicoCodigoUsuarioAndFechaCitaAndHoraCita(entity.getMedico().getCodigoUsuario(), entity.getFechaCita(), entity.getHoraCita())) {
+            throw new IllegalArgumentException("El médico ya tiene otra cita a esta hora");
+        }
+
+        if (dto.getEstado() != null) {
+            List<String> estadosValidos = List.of("PENDIENTE", "CONFIRMADA", "CANCELADA", "FINALIZADA");
+            String estadoUpper = dto.getEstado().toUpperCase();
+            if (!estadosValidos.contains(estadoUpper)) {
+                throw new IllegalArgumentException("Estado inválido");
+            }
+            entity.setEstado(estadoUpper);
+        }
 
         Appointment saved = repository.save(entity);
         return Optional.of(viewMapper.toViewDTO(saved));
     }
+
 
     // Eliminar cita
     public boolean deleteAppointment(Long id) {

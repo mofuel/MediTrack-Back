@@ -1,6 +1,9 @@
 package com.MediTrack.domain.repository;
 
 import com.MediTrack.persistance.entity.Appointment;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,4 +26,8 @@ public interface AppointmentRepository {
     void deleteById(Long id);
 
     long count();
+
+    boolean existsByPacienteIdAndFechaCitaAndHoraCita(String pacienteId, LocalDate fecha, LocalTime hora);
+
+    boolean existsByMedicoCodigoUsuarioAndFechaCitaAndHoraCita(String codigoMedico, LocalDate fecha, LocalTime hora);
 }
