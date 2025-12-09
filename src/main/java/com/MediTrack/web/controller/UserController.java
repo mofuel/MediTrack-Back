@@ -174,8 +174,11 @@ public class UserController {
         try {
             User actualizado = userService.actualizarUsuario(codigo, datosActualizados);
             return ResponseEntity.ok(actualizado);
+        } catch (IllegalArgumentException e) {
+            // Retornamos JSON con "error"
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
         }
     }
 }

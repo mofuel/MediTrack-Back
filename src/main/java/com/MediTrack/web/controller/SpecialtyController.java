@@ -52,10 +52,15 @@ public class SpecialtyController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<SpecialtyDTO> update(@PathVariable Long id, @RequestBody SpecialtyDTO dto) {
-        SpecialtyDTO updated = specialtyService.update(id, dto);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody SpecialtyDTO dto) {
+        try {
+            SpecialtyDTO updated = specialtyService.update(id, dto);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
+
 
     // Eliminar especialidad por ID (solo ADMIN)
     // @PreAuthorize("hasRole('ADMIN')")

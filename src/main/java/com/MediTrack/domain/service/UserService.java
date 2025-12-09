@@ -121,13 +121,51 @@ public class UserService {
 
         User existente = existenteOpt.get();
 
-        if (datosActualizados.getNombre() != null) existente.setNombre(datosActualizados.getNombre());
-        if (datosActualizados.getApellido() != null) existente.setApellido(datosActualizados.getApellido());
-        if (datosActualizados.getDni() != null) existente.setDni(datosActualizados.getDni());
-        if (datosActualizados.getSexo() != null) existente.setSexo(datosActualizados.getSexo());
-        if (datosActualizados.getEmail() != null) existente.setEmail(datosActualizados.getEmail());
-        if (datosActualizados.getTelefono() != null) existente.setTelefono(datosActualizados.getTelefono());
-        if (datosActualizados.getRol() != null) existente.setRol(datosActualizados.getRol());
+        if (datosActualizados.getNombre() != null) {
+            String nombre = datosActualizados.getNombre().trim();
+            if (nombre.isEmpty() || !nombre.matches("^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$")) {
+                throw new IllegalArgumentException("El nombre no puede estar vacío ni contener números o caracteres especiales");
+            }
+            existente.setNombre(nombre);
+        }
+
+        if (datosActualizados.getApellido() != null) {
+            String apellido = datosActualizados.getApellido().trim();
+            if (apellido.isEmpty() || !apellido.matches("^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$")) {
+                throw new IllegalArgumentException("El apellido no puede estar vacío ni contener números o caracteres especiales");
+            }
+            existente.setApellido(apellido);
+        }
+
+
+        if (datosActualizados.getDni() != null) {
+            if (!datosActualizados.getDni().matches("^\\d{8}$")) {
+                throw new IllegalArgumentException("El DNI debe tener 8 dígitos");
+            }
+            existente.setDni(datosActualizados.getDni());
+        }
+
+        if (datosActualizados.getTelefono() != null) {
+            if (!datosActualizados.getTelefono().matches("^\\d{9}$")) {
+                throw new IllegalArgumentException("El teléfono debe tener 9 dígitos");
+            }
+            existente.setTelefono(datosActualizados.getTelefono());
+        }
+
+        if (datosActualizados.getEmail() != null) {
+            if (!datosActualizados.getEmail().matches("^[\\w-.]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
+                throw new IllegalArgumentException("Email inválido");
+            }
+            existente.setEmail(datosActualizados.getEmail());
+        }
+
+        if (datosActualizados.getSexo() != null) {
+            existente.setSexo(datosActualizados.getSexo());
+        }
+
+        if (datosActualizados.getRol() != null) {
+            existente.setRol(datosActualizados.getRol());
+        }
 
         if (datosActualizados.isActivo() != existente.isActivo()) {
             existente.setActivo(datosActualizados.isActivo());
@@ -135,6 +173,7 @@ public class UserService {
 
         return userRepository.save(existente);
     }
+
 
     public boolean tienePerfilMedico(String codigoUsuario) {
 

@@ -19,6 +19,10 @@ public class SpecialtyService {
     private SpecialtyMapper mapper;
 
     public SpecialtyDTO save(SpecialtyDTO dto) {
+        if (!dto.getNombre().matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$")) {
+            throw new IllegalArgumentException("El nombre de la especialidad solo puede contener letras y espacios");
+        }
+
         if (repository.existsByNombre(dto.getNombre())) {
             throw new IllegalArgumentException("La especialidad ya existe");
         }
@@ -49,11 +53,12 @@ public class SpecialtyService {
     public SpecialtyDTO update(Long id, SpecialtyDTO dto) {
         SpecialtyDTO existing = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Especialidad no encontrada"));
-
         if (dto.getNombre() != null) {
+            if (!dto.getNombre().matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$")) {
+                throw new IllegalArgumentException("El nombre de la especialidad solo puede contener letras y espacios");
+            }
             existing.setNombre(dto.getNombre());
         }
-
         return repository.save(existing);
     }
 
