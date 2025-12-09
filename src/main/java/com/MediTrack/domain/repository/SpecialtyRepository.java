@@ -17,4 +17,6 @@ public interface SpecialtyRepository {
     boolean existsByNombre(String nombre);
 
     void deleteById(Long id);
+
+    boolean existsByNombreIgnoreCase(String nombre);
 }

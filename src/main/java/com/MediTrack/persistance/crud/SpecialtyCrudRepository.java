@@ -13,4 +13,6 @@ public interface SpecialtyCrudRepository extends JpaRepository<Specialty, Long> 
     Optional<Specialty> findByNombre(String nombre);
 
     boolean existsByNombre(String nombre);
+
+    boolean existsByNombreIgnoreCase(String nombre);
 }

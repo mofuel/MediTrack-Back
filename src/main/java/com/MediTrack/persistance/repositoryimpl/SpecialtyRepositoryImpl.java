@@ -55,4 +55,9 @@ public class SpecialtyRepositoryImpl implements SpecialtyRepository {
     public void deleteById(Long id) {
         crud.deleteById(id);
     }
+
+    @Override
+    public boolean existsByNombreIgnoreCase(String nombre) {
+        return crud.existsByNombreIgnoreCase(nombre);
+    }
 }

@@ -19,13 +19,20 @@ public class SpecialtyService {
     private SpecialtyMapper mapper;
 
     public SpecialtyDTO save(SpecialtyDTO dto) {
-        if (!dto.getNombre().matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$")) {
+        if (dto.getNombre() == null || dto.getNombre().trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre de la especialidad no puede estar vacío");
+        }
+
+        String nombre = dto.getNombre().trim();
+        if (!nombre.matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$")) {
             throw new IllegalArgumentException("El nombre de la especialidad solo puede contener letras y espacios");
         }
 
-        if (repository.existsByNombre(dto.getNombre())) {
+        if (repository.existsByNombreIgnoreCase(nombre)) {
             throw new IllegalArgumentException("La especialidad ya existe");
         }
+
+        dto.setNombre(nombre);
         return repository.save(dto);
     }
 
@@ -53,12 +60,18 @@ public class SpecialtyService {
     public SpecialtyDTO update(Long id, SpecialtyDTO dto) {
         SpecialtyDTO existing = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Especialidad no encontrada"));
+
         if (dto.getNombre() != null) {
-            if (!dto.getNombre().matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$")) {
+            String nombre = dto.getNombre().trim();
+            if (nombre.isEmpty() || !nombre.matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$")) {
                 throw new IllegalArgumentException("El nombre de la especialidad solo puede contener letras y espacios");
             }
-            existing.setNombre(dto.getNombre());
+            if (repository.existsByNombreIgnoreCase(nombre) && !nombre.equalsIgnoreCase(existing.getNombre())) {
+                throw new IllegalArgumentException("La especialidad ya existe");
+            }
+            existing.setNombre(nombre);
         }
+
         return repository.save(existing);
     }
 
