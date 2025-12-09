@@ -30,6 +30,22 @@ public class UserService {
     private MedicProfileCrudRepository crud;
 
 
+    private void validarDatosRegistro(RegisterDTO dto) {
+        if (dto.getDni() == null || !dto.getDni().matches("\\d{8}")) {
+            throw new IllegalArgumentException("El DNI debe tener 8 dígitos");
+        }
+
+        if (dto.getTelefono() == null || !dto.getTelefono().matches("\\d{9}")) {
+            throw new IllegalArgumentException("El número de celular debe tener 9 dígitos");
+        }
+
+        if (dto.getEmail() == null || !dto.getEmail().contains("@")) {
+            throw new IllegalArgumentException("Correo electrónico inválido");
+        }
+    }
+
+
+
 
     public User guardar(User user) {
         if (user.getCodigo() == null || user.getCodigo().isEmpty()) {
@@ -37,7 +53,6 @@ public class UserService {
         }
         User savedUser = userRepository.save(user);
 
-        // ❌ Ya NO existe savedUser.getId(), así que eliminamos esa parte
         if (savedUser == null) {
             System.err.println("Falló el guardado!");
         } else {
@@ -49,33 +64,20 @@ public class UserService {
 
 
     public User registrarUsuario(RegisterDTO dto) {
+        validarDatosRegistro(dto); // <-- validaciones
         User user = registerMapper.toUserFromRegisterDTO(dto);
         user.setRol("ROLE_PACIENTE");
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setActivo(true);
-        System.out.println("Nuevo usuario: " + user);
-
-        // Guardar y retornar el usuario persistido
         return guardar(user);
     }
 
-
     public User registrarDoctor(RegisterDTO dto) {
-        // Mapear DTO a entidad
+        validarDatosRegistro(dto); // <-- validaciones
         User user = registerMapper.toUserFromRegisterDTO(dto);
-
-        // Forzar rol de doctor
         user.setRol("ROLE_MEDICO");
-
-        // Codificar contraseña
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-
-        // Activar usuario
         user.setActivo(true);
-
-        System.out.println("Nuevo doctor: " + user);
-
-        // Guardar y retornar
         return guardar(user);
     }
 

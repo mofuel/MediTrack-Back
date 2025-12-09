@@ -35,29 +35,31 @@ public class UserController {
 
         Optional<User> existente = userService.buscarPorEmail(registerDTO.getEmail());
         if (existente.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "El email ya está registrado"));
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "El email ya está registrado"));
         }
 
-        User nuevoUsuario = userService.registrarUsuario(registerDTO);
-
-        String rol = nuevoUsuario.getRol() != null ? nuevoUsuario.getRol() : "ROLE_PACIENTE";
-        String token = jwtUtil.generarToken(nuevoUsuario.getEmail(), rol);
-
-        Map<String, Object> response = Map.of(
-                "codigo", nuevoUsuario.getCodigo(),
-                "nombre", nuevoUsuario.getNombre(),
-                "apellido", nuevoUsuario.getApellido(),
-                "dni", nuevoUsuario.getDni(),
-                "sexo", nuevoUsuario.getSexo(),
-                "email", nuevoUsuario.getEmail(),
-                "telefono", nuevoUsuario.getTelefono(),
-                "rol", rol,
-                "estado", nuevoUsuario.isActivo() ? "Activo" : "Inactivo",
-                "token", token
-        );
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            User nuevoUsuario = userService.registrarUsuario(registerDTO);
+            String token = jwtUtil.generarToken(nuevoUsuario.getEmail(), nuevoUsuario.getRol());
+            Map<String, Object> response = Map.of(
+                    "codigo", nuevoUsuario.getCodigo(),
+                    "nombre", nuevoUsuario.getNombre(),
+                    "apellido", nuevoUsuario.getApellido(),
+                    "dni", nuevoUsuario.getDni(),
+                    "sexo", nuevoUsuario.getSexo(),
+                    "email", nuevoUsuario.getEmail(),
+                    "telefono", nuevoUsuario.getTelefono(),
+                    "rol", nuevoUsuario.getRol(),
+                    "estado", nuevoUsuario.isActivo() ? "Activo" : "Inactivo",
+                    "token", token
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
+
 
 
 
