@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -90,10 +91,8 @@ public class UserService {
 
     // Generar código
     private String generarCodigoPersonalizado() {
-        long count = userRepository.count() + 1;
-        return String.format("U%05d", count); // ejemplo: U00001
+        return "U" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
-
 
     public void updatePassword(String codigo, String rawPassword) {
         String encoded = passwordEncoder.encode(rawPassword);

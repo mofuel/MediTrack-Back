@@ -6,24 +6,23 @@ import java.time.LocalTime;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "cita")
+@Table(name = "cita", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"medico_id", "fecha_cita", "hora_cita"})
+})
 public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relación con usuario (paciente)
     @ManyToOne
     @JoinColumn(name = "paciente_id", nullable = false)
     private User paciente;
 
-    // Relación con perfil médico
     @ManyToOne
     @JoinColumn(name = "medico_id", nullable = false)
     private MedicProfile medico;
 
-    // Relación con especialidad
     @ManyToOne
     @JoinColumn(name = "especialidad_id", nullable = false)
     private Specialty especialidad;
@@ -34,14 +33,18 @@ public class Appointment {
     @Column(name = "hora_cita", nullable = false)
     private LocalTime horaCita;
 
+    @Column(name = "hora_fin")
+    private LocalTime horaFin;
+
+    @Column(name = "duracion_minutos")
+    private Integer duracionMinutos = 60;
+
     @Column(name = "estado", nullable = false)
-    private String estado = "PENDIENTE"; // PENDIENTE, ACEPTADA, RECHAZADA
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus estado = AppointmentStatus.PENDIENTE;
 
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion = LocalDateTime.now();
-
-    // Getters y Setters
-
 
     public Long getId() {return id;}
 
@@ -67,9 +70,17 @@ public class Appointment {
 
     public void setHoraCita(LocalTime horaCita) {this.horaCita = horaCita;}
 
-    public String getEstado() {return estado;}
+    public LocalTime getHoraFin() {return horaFin;}
 
-    public void setEstado(String estado) {this.estado = estado;}
+    public void setHoraFin(LocalTime horaFin) {this.horaFin = horaFin;}
+
+    public Integer getDuracionMinutos() {return duracionMinutos;}
+
+    public void setDuracionMinutos(Integer duracionMinutos) {this.duracionMinutos = duracionMinutos;}
+
+    public AppointmentStatus getEstado() {return estado;}
+
+    public void setEstado(AppointmentStatus estado) {this.estado = estado;}
 
     public LocalDateTime getFechaCreacion() {return fechaCreacion;}
 

@@ -3,12 +3,16 @@ package com.MediTrack.web.controller;
 import com.MediTrack.domain.dto.AppointmentDTO;
 import com.MediTrack.domain.dto.AppointmentViewDTO;
 import com.MediTrack.domain.service.AppointmentService;
+import com.MediTrack.domain.service.UserService;
+import com.MediTrack.persistance.entity.User;
 import com.MediTrack.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.MediTrack.domain.dto.SlotDisponibleDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,11 +27,28 @@ public class AppointmentController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private UserService userService;
+
 
     private ResponseEntity<?> handleError(Exception e) {
         return ResponseEntity
                 .badRequest()
                 .body(Map.of("error", e.getMessage()));
+    }
+
+    @GetMapping("/slots")
+    public ResponseEntity<?> getSlotsDisponibles(
+            @RequestParam String medicoId,
+            @RequestParam String fecha) {
+
+        try {
+            LocalDate fechaParsed = LocalDate.parse(fecha);
+            List<SlotDisponibleDTO> slots = appointmentService.obtenerSlotsDisponibles(medicoId, fechaParsed);
+            return ResponseEntity.ok(slots);
+        } catch (Exception e) {
+            return handleError(e);
+        }
     }
 
 
@@ -89,9 +110,19 @@ public class AppointmentController {
 
         try {
             String token = authHeader.substring(7);
-            jwtUtil.getUsernameFromToken(token);
+            String email = jwtUtil.getUsernameFromToken(token);
 
-            List<AppointmentViewDTO> citas = appointmentService.getAllAppointmentsView();
+            User user = userService.buscarPorEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            List<AppointmentViewDTO> citas;
+            if ("ROLE_ADMIN".equals(user.getRol())) {
+                citas = appointmentService.getAllAppointmentsView();
+            } else if ("ROLE_MEDICO".equals(user.getRol())) {
+                citas = appointmentService.getByMedicoIdView(user.getCodigo());
+            } else {
+                citas = appointmentService.getByPacienteIdView(user.getCodigo());
+            }
             return ResponseEntity.ok(citas);
 
         } catch (Exception e) {
@@ -191,9 +222,28 @@ public class AppointmentController {
 
 
     @GetMapping("/pendientes")
-    public ResponseEntity<?> getPendientes() {
+    public ResponseEntity<?> getPendientes(
+            @RequestHeader("Authorization") String authHeader) {
+
         try {
-            List<AppointmentViewDTO> pendientes = appointmentService.getByEstadoView("PENDIENTE");
+            String token = authHeader.substring(7);
+            String email = jwtUtil.getUsernameFromToken(token);
+
+            User user = userService.buscarPorEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            List<AppointmentViewDTO> pendientes;
+            if ("ROLE_ADMIN".equals(user.getRol())) {
+                pendientes = appointmentService.getByEstadoView("PENDIENTE");
+            } else if ("ROLE_MEDICO".equals(user.getRol())) {
+                pendientes = appointmentService.getByMedicoIdView(user.getCodigo()).stream()
+                        .filter(c -> "PENDIENTE".equals(c.getEstado()))
+                        .collect(java.util.stream.Collectors.toList());
+            } else {
+                pendientes = appointmentService.getByPacienteIdView(user.getCodigo()).stream()
+                        .filter(c -> "PENDIENTE".equals(c.getEstado()))
+                        .collect(java.util.stream.Collectors.toList());
+            }
             return ResponseEntity.ok(pendientes);
 
         } catch (Exception e) {

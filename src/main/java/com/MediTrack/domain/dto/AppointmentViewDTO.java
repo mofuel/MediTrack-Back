@@ -14,6 +14,8 @@ public class AppointmentViewDTO {
     private LocalTime horaCita;
     private String estado;
     private LocalDateTime fechaCreacion;
+    private LocalTime horaFin;
+    private Integer duracionMinutos;
 
     // Getters y Setters
     public Long getId() { return id; }
@@ -39,4 +41,12 @@ public class AppointmentViewDTO {
 
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }
     public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalTime getHoraFin() {return horaFin;}
+
+    public void setHoraFin(LocalTime horaFin) {this.horaFin = horaFin;}
+
+    public Integer getDuracionMinutos() {return duracionMinutos;}
+
+    public void setDuracionMinutos(Integer duracionMinutos) {this.duracionMinutos = duracionMinutos;}
 }

@@ -49,6 +49,11 @@ public class AppointmentRepositoryImpl implements AppointmentRepository {
     }
 
     @Override
+    public List<Appointment> findByMedicoCodigoUsuarioAndFechaCita(String codigoMedico, LocalDate fecha) {
+        return crud.findByMedico_CodigoUsuarioAndFechaCitaOrderByHoraCitaAsc(codigoMedico, fecha);
+    }
+
+    @Override
     public List<Appointment> findAll() {
         List<Appointment> appointments = new ArrayList<>();
         crud.findAll().forEach(appointments::add);
@@ -67,19 +72,13 @@ public class AppointmentRepositoryImpl implements AppointmentRepository {
 
     @Override
     public boolean existsByPacienteIdAndFechaCitaAndHoraCita(
-            String pacienteId,
-            LocalDate fecha,
-            LocalTime hora
-    ) {
+            String pacienteId, LocalDate fecha, LocalTime hora) {
         return crud.existsByPaciente_CodigoAndFechaCitaAndHoraCita(pacienteId, fecha, hora);
     }
 
     @Override
     public boolean existsByMedicoCodigoUsuarioAndFechaCitaAndHoraCita(
-            String codigoMedico,
-            LocalDate fecha,
-            LocalTime hora
-    ) {
+            String codigoMedico, LocalDate fecha, LocalTime hora) {
         return crud.existsByMedico_CodigoUsuarioAndFechaCitaAndHoraCita(codigoMedico, fecha, hora);
     }
 }

@@ -19,6 +19,8 @@ public interface AppointmentRepository {
 
     List<Appointment> findByMedicoCodigoUsuario(String codigoUsuario);
 
+    List<Appointment> findByMedicoCodigoUsuarioAndFechaCita(String codigoMedico, LocalDate fecha);
+
     List<Appointment> findByEstado(String estado);
 
     List<Appointment> findAll();

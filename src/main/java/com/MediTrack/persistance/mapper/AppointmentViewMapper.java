@@ -25,8 +25,10 @@ public interface AppointmentViewMapper {
         dto.setEspecialidadNombre(entity.getEspecialidad().getNombre());
         dto.setFechaCita(entity.getFechaCita());
         dto.setHoraCita(entity.getHoraCita());
-        dto.setEstado(entity.getEstado());
+        dto.setEstado(entity.getEstado().name());
         dto.setFechaCreacion(entity.getFechaCreacion());
+        dto.setHoraFin(entity.getHoraFin());
+        dto.setDuracionMinutos(entity.getDuracionMinutos());
         return dto;
     }
 
